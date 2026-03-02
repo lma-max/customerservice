@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Ticket — CS Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">CS<span>Tracker</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">New Ticket</a></li>
+        <li><a href="tickets.html">All Tickets</a></li>
+        <li><a href="documents.html">Documents</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="page-wrapper">
+    <div class="page-header">
+      <h1>Submit New Ticket</h1>
+      <p>Fill out all required fields to log a new customer inquiry.</p>
+    </div>
+
+    <!-- Success Alert (hidden by default) -->
+    <div id="successAlert" class="alert alert-success" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      <span id="successMsg"></span>
+    </div>
+
+    <!-- Error Alert (hidden by default) -->
+    <div id="errorAlert" class="alert alert-error" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <span id="errorMsg">Please fill in all required fields.</span>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form id="ticketForm" novalidate>
+
+          <div class="form-grid">
+
+            <!-- Date of Ticket -->
+            <div class="form-group">
+              <label for="dateOfTicket">Date of Ticket <span class="required">*</span></label>
+              <input type="date" id="dateOfTicket" name="dateOfTicket" required />
+            </div>
+
+            <!-- CS Rep Name -->
+            <div class="form-group">
+              <label for="csRepName">CS Rep Name <span class="required">*</span></label>
+              <input type="text" id="csRepName" name="csRepName" placeholder="Your name" required />
+            </div>
+
+            <!-- Channel -->
+            <div class="form-group">
+              <label for="channel">Channel <span class="required">*</span></label>
+              <select id="channel" name="channel" required>
+                <option value="">— Select channel —</option>
+                <option value="GC Main">GC Main</option>
+                <option value="GC Modern">GC Modern</option>
+                <option value="GC Vault">GC Vault</option>
+                <option value="GC Rips">GC Rips</option>
+              </select>
+            </div>
+
+            <!-- Customer Username -->
+            <div class="form-group">
+              <label for="customerUsername">Customer Username <span class="required">*</span></label>
+              <input type="text" id="customerUsername" name="customerUsername" placeholder="@username" required />
+            </div>
+
+            <!-- Order # -->
+            <div class="form-group">
+              <label for="orderNumber">Order # <span class="required">*</span></label>
+              <input type="text" id="orderNumber" name="orderNumber" placeholder="e.g. 12345" required />
+            </div>
+
+            <!-- Order Date -->
+            <div class="form-group">
+              <label for="orderDate">Order Date <span class="required">*</span></label>
+              <input type="date" id="orderDate" name="orderDate" required />
+            </div>
+
+            <!-- Issue Category -->
+            <div class="form-group">
+              <label for="issueCategory">Issue Category <span class="required">*</span></label>
+              <select id="issueCategory" name="issueCategory" required>
+                <option value="">— Select category —</option>
+                <option value="Shipping Issue">Shipping Issue</option>
+                <option value="Wrong Item">Wrong Item</option>
+                <option value="Missing Item">Missing Item</option>
+                <option value="Damaged Item">Damaged Item</option>
+                <option value="Return Request">Return Request</option>
+                <option value="Cancelled Order">Cancelled Order</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Response Status -->
+            <div class="form-group">
+              <label for="responseStatus">Response Status <span class="required">*</span></label>
+              <select id="responseStatus" name="responseStatus" required>
+                <option value="">— Select status —</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending Customer">Pending Customer</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+
+            <!-- Issue -->
+            <div class="form-group full-width">
+              <label for="issue">Issue <span class="required">*</span></label>
+              <textarea id="issue" name="issue" placeholder="Briefly describe the issue..." required style="min-height:90px;"></textarea>
+            </div>
+
+            <!-- Last Contacted -->
+            <div class="form-group">
+              <label for="lastContacted">Last Contacted <span class="required">*</span></label>
+              <input type="date" id="lastContacted" name="lastContacted" required />
+            </div>
+
+            <!-- Resolution Type -->
+            <div class="form-group">
+              <label for="resolutionType">Resolution Type</label>
+              <select id="resolutionType" name="resolutionType">
+                <option value="">— Select if applicable —</option>
+                <option value="Refund">Refund</option>
+                <option value="Replacement">Replacement</option>
+                <option value="Cancelled Order">Cancelled Order</option>
+                <option value="No Action Needed">No Action Needed</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group full-width">
+              <label for="notes">Notes <span class="required">*</span></label>
+              <textarea id="notes" name="notes" placeholder="Add a dated note, e.g. '03/02/2026 — Customer replied, awaiting return label'" required style="min-height:90px;"></textarea>
+              <span class="helper-text">Add newest entries at the top with the current date.</span>
+            </div>
+
+            <!-- Total Resolution Time -->
+            <div class="form-group">
+              <label for="totalResolutionTime">Total Resolution Time</label>
+              <input type="text" id="totalResolutionTime" name="totalResolutionTime" placeholder='e.g. "3 days", "1 week"' />
+              <span class="helper-text">Fill in when the ticket is resolved.</span>
+            </div>
+
+          </div><!-- /form-grid -->
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="clearBtn">Clear Form</button>
+            <button type="submit" class="btn btn-primary">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+              </svg>
+              Submit Ticket
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div><!-- /page-wrapper -->
+
+  <script>
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function getToday() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function nextTicketId() {
+      const counter = parseInt(localStorage.getItem('tkt_counter') || '0', 10) + 1;
+      localStorage.setItem('tkt_counter', counter);
+      return 'TKT-' + String(counter).padStart(3, '0');
+    }
+
+    function getTickets() {
+      try {
+        return JSON.parse(localStorage.getItem('cs_tickets') || '[]');
+      } catch { return []; }
+    }
+
+    function saveTickets(tickets) {
+      localStorage.setItem('cs_tickets', JSON.stringify(tickets));
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('ticketForm');
+      const successAlert = document.getElementById('successAlert');
+      const errorAlert = document.getElementById('errorAlert');
+      const clearBtn = document.getElementById('clearBtn');
+
+      // Default date fields to today
+      const today = getToday();
+      document.getElementById('dateOfTicket').value = today;
+      document.getElementById('lastContacted').value = today;
+
+      // ── Submit ───────────────────────────────────────────────────────────────
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        successAlert.style.display = 'none';
+        errorAlert.style.display = 'none';
+
+        // Required fields validation
+        const requiredIds = [
+          'dateOfTicket', 'csRepName', 'channel', 'customerUsername',
+          'orderNumber', 'orderDate', 'issueCategory', 'issue',
+          'responseStatus', 'lastContacted', 'notes'
+        ];
+
+        let valid = true;
+        requiredIds.forEach(function (id) {
+          const el = document.getElementById(id);
+          const val = el.value.trim();
+          if (!val) {
+            valid = false;
+            el.style.borderColor = '#dc2626';
+          } else {
+            el.style.borderColor = '';
+          }
+        });
+
+        if (!valid) {
+          errorAlert.style.display = 'flex';
+          document.getElementById('errorMsg').textContent = 'Please fill in all required fields.';
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          return;
+        }
+
+        const id = nextTicketId();
+        const ticket = {
+          id,
+          dateOfTicket:       document.getElementById('dateOfTicket').value,
+          csRepName:          document.getElementById('csRepName').value.trim(),
+          channel:            document.getElementById('channel').value,
+          customerUsername:   document.getElementById('customerUsername').value.trim(),
+          orderNumber:        document.getElementById('orderNumber').value.trim(),
+          orderDate:          document.getElementById('orderDate').value,
+          issueCategory:      document.getElementById('issueCategory').value,
+          issue:              document.getElementById('issue').value.trim(),
+          responseStatus:     document.getElementById('responseStatus').value,
+          lastContacted:      document.getElementById('lastContacted').value,
+          resolutionType:     document.getElementById('resolutionType').value,
+          notes:              document.getElementById('notes').value.trim(),
+          totalResolutionTime: document.getElementById('totalResolutionTime').value.trim(),
+          createdAt: new Date().toISOString()
+        };
+
+        const tickets = getTickets();
+        tickets.push(ticket);
+        saveTickets(tickets);
+
+        document.getElementById('successMsg').textContent =
+          'Ticket ' + id + ' submitted successfully!';
+        successAlert.style.display = 'flex';
+        successAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Reset form
+        form.reset();
+        document.getElementById('dateOfTicket').value = getToday();
+        document.getElementById('lastContacted').value = getToday();
+        // Clear any error borders
+        requiredIds.forEach(function (id) {
+          document.getElementById(id).style.borderColor = '';
+        });
+      });
+
+      // ── Clear ────────────────────────────────────────────────────────────────
+      clearBtn.addEventListener('click', function () {
+        form.reset();
+        document.getElementById('dateOfTicket').value = getToday();
+        document.getElementById('lastContacted').value = getToday();
+        successAlert.style.display = 'none';
+        errorAlert.style.display = 'none';
+        // Clear error borders
+        form.querySelectorAll('input, select, textarea').forEach(function (el) {
+          el.style.borderColor = '';
+        });
+      });
+
+      // ── Clear red borders on input ────────────────────────────────────────────
+      form.querySelectorAll('input, select, textarea').forEach(function (el) {
+        el.addEventListener('input', function () { el.style.borderColor = ''; });
+        el.addEventListener('change', function () { el.style.borderColor = ''; });
+      });
+    });
+  </script>
+
+</body>
+</html>
