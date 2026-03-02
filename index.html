@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Ticket — CS Ticket Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===== Navigation ===== -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">CS <span>Ticket Tracker</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">+ New Ticket</a></li>
+      <li><a href="tickets.html">All Tickets</a></li>
+      <li><a href="documents.html">Documents</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== Page ===== -->
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>Submit a New Ticket</h1>
+    <p>Fill out all required fields to log a customer inquiry.</p>
+  </div>
+
+  <!-- Alert area -->
+  <div id="alert-area"></div>
+
+  <div class="card">
+    <form id="ticket-form" novalidate>
+
+      <!-- Section: Ticket Info -->
+      <div class="section-title">Ticket Information</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="dateOfTicket">Date of Ticket <span class="required">*</span></label>
+          <input type="date" id="dateOfTicket" name="dateOfTicket" required />
+        </div>
+
+        <div class="form-group">
+          <label for="csRepName">CS Rep Name <span class="required">*</span></label>
+          <input type="text" id="csRepName" name="csRepName" placeholder="Your name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="channel">Channel <span class="required">*</span></label>
+          <select id="channel" name="channel" required>
+            <option value="">— Select channel —</option>
+            <option>GC Main</option>
+            <option>GC Modern</option>
+            <option>GC Vault</option>
+            <option>GC Rips</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="customerUsername">Customer Username <span class="required">*</span></label>
+          <input type="text" id="customerUsername" name="customerUsername" placeholder="e.g. johndoe92" required />
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <!-- Section: Order Info -->
+      <div class="section-title">Order Details</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="orderNumber">Order # <span class="required">*</span></label>
+          <input type="text" id="orderNumber" name="orderNumber" placeholder="e.g. 1234567" required />
+        </div>
+
+        <div class="form-group">
+          <label for="orderDate">Order Date <span class="required">*</span></label>
+          <input type="date" id="orderDate" name="orderDate" required />
+        </div>
+
+        <div class="form-group">
+          <label for="issueCategory">Issue Category <span class="required">*</span></label>
+          <select id="issueCategory" name="issueCategory" required>
+            <option value="">— Select category —</option>
+            <option>Shipping Issue</option>
+            <option>Wrong Item</option>
+            <option>Missing Item</option>
+            <option>Damaged Item</option>
+            <option>Return Request</option>
+            <option>Cancelled Order</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="responseStatus">Response Status <span class="required">*</span></label>
+          <select id="responseStatus" name="responseStatus" required>
+            <option value="">— Select status —</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Pending Customer</option>
+            <option>Resolved</option>
+            <option>Closed</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label for="issue">Issue Description <span class="required">*</span></label>
+          <textarea id="issue" name="issue" rows="4" placeholder="Briefly describe the issue..." required></textarea>
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <!-- Section: Contact & Resolution -->
+      <div class="section-title">Contact & Resolution</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="lastContacted">Last Contacted <span class="required">*</span></label>
+          <input type="date" id="lastContacted" name="lastContacted" required />
+        </div>
+
+        <div class="form-group">
+          <label for="resolutionType">Resolution Type</label>
+          <select id="resolutionType" name="resolutionType">
+            <option value="">— Select if applicable —</option>
+            <option>Refund</option>
+            <option>Replacement</option>
+            <option>Cancelled Order</option>
+            <option>No Action Needed</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="totalResolutionTime">Total Resolution Time</label>
+          <input type="text" id="totalResolutionTime" name="totalResolutionTime" placeholder='e.g. "3 days", "1 week"' />
+        </div>
+
+        <div class="form-group span-2">
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" rows="4"
+            placeholder="Add a dated note, e.g. '03/02/2026 — Customer replied, awaiting return label'"></textarea>
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          &#10003; Submit Ticket
+        </button>
+        <button type="button" class="btn btn-secondary" id="clear-btn">Clear Form</button>
+      </div>
+
+    </form>
+  </div><!-- /card -->
+</div><!-- /page-wrapper -->
+
+<script src="app.js"></script>
+<script>
+(function () {
+  const form   = document.getElementById('ticket-form');
+  const alerts = document.getElementById('alert-area');
+
+  /* Default date fields to today */
+  const today = todayISO();
+  document.getElementById('dateOfTicket').value  = today;
+  document.getElementById('lastContacted').value = today;
+
+  function showAlert(type, html) {
+    alerts.innerHTML = `<div class="alert alert-${type}">${html}</div>`;
+    alerts.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (type === 'success') {
+      setTimeout(() => { alerts.innerHTML = ''; }, 8000);
+    }
+  }
+
+  function clearAlert() {
+    alerts.innerHTML = '';
+  }
+
+  /* Form submission */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearAlert();
+
+    /* HTML5 validity */
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const id = getNextTicketId();
+
+    const ticket = {
+      id,
+      dateOfTicket:        form.dateOfTicket.value,
+      csRepName:           form.csRepName.value.trim(),
+      channel:             form.channel.value,
+      customerUsername:    form.customerUsername.value.trim(),
+      orderNumber:         form.orderNumber.value.trim(),
+      orderDate:           form.orderDate.value,
+      issueCategory:       form.issueCategory.value,
+      issue:               form.issue.value.trim(),
+      responseStatus:      form.responseStatus.value,
+      lastContacted:       form.lastContacted.value,
+      resolutionType:      form.resolutionType.value,
+      notes:               form.notes.value.trim(),
+      totalResolutionTime: form.totalResolutionTime.value.trim(),
+      createdAt:           new Date().toISOString(),
+      updatedAt:           new Date().toISOString(),
+    };
+
+    saveTicket(ticket);
+
+    showAlert('success',
+      `<strong>Ticket ${escHtml(id)} submitted successfully!</strong> ` +
+      `The ticket has been saved. <a href="tickets.html" style="color:inherit;font-weight:700;">View all tickets &rarr;</a>`
+    );
+
+    /* Reset form */
+    form.reset();
+    document.getElementById('dateOfTicket').value  = todayISO();
+    document.getElementById('lastContacted').value = todayISO();
+  });
+
+  /* Clear button */
+  document.getElementById('clear-btn').addEventListener('click', function () {
+    if (confirm('Clear all form fields?')) {
+      form.reset();
+      document.getElementById('dateOfTicket').value  = todayISO();
+      document.getElementById('lastContacted').value = todayISO();
+      clearAlert();
+    }
+  });
+})();
+</script>
+</body>
+</html>

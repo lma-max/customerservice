@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Tickets — CS Ticket Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===== Navigation ===== -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">CS <span>Ticket Tracker</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">+ New Ticket</a></li>
+      <li><a href="tickets.html">All Tickets</a></li>
+      <li><a href="documents.html">Documents</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== Page ===== -->
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>All Tickets</h1>
+    <p>View, filter, edit, and manage all customer inquiry tickets.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="stats-bar">
+    <!-- Rendered by JS -->
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-group search-group">
+        <label for="search">Search</label>
+        <input type="text" id="search" placeholder="Username, Order #, or Ticket ID…" />
+      </div>
+      <div class="filter-group">
+        <label for="filter-status">Response Status</label>
+        <select id="filter-status">
+          <option value="">All Statuses</option>
+          <option>Open</option>
+          <option>In Progress</option>
+          <option>Pending Customer</option>
+          <option>Resolved</option>
+          <option>Closed</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-category">Issue Category</label>
+        <select id="filter-category">
+          <option value="">All Categories</option>
+          <option>Shipping Issue</option>
+          <option>Wrong Item</option>
+          <option>Missing Item</option>
+          <option>Damaged Item</option>
+          <option>Return Request</option>
+          <option>Cancelled Order</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-channel">Channel</label>
+        <select id="filter-channel">
+          <option value="">All Channels</option>
+          <option>GC Main</option>
+          <option>GC Modern</option>
+          <option>GC Vault</option>
+          <option>GC Rips</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="sort-by">Sort By</label>
+        <select id="sort-by">
+          <option value="dateOfTicket-desc">Ticket Date (Newest)</option>
+          <option value="dateOfTicket-asc">Ticket Date (Oldest)</option>
+          <option value="lastContacted-desc">Last Contacted (Newest)</option>
+          <option value="lastContacted-asc">Last Contacted (Oldest)</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-secondary btn-sm" id="clear-filters-btn">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div id="results-info" class="text-muted text-sm" style="margin-bottom:10px;"></div>
+  <div class="table-wrapper">
+    <table id="tickets-table">
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Date</th>
+          <th>Rep</th>
+          <th>Channel</th>
+          <th>Customer</th>
+          <th>Order #</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Last Contacted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tickets-tbody">
+        <!-- Rendered by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state (hidden when there are results) -->
+  <div id="empty-state" class="empty-state hidden">
+    <div class="empty-icon">&#128203;</div>
+    <h3>No tickets found</h3>
+    <p>Try adjusting your filters, or <a href="index.html">submit a new ticket</a>.</p>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- ===== Edit Modal ===== -->
+<div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <h2 id="modal-title">Edit Ticket</h2>
+        <span class="ticket-id-badge" id="modal-ticket-id"></span>
+      </div>
+      <button class="modal-close" id="modal-close-btn" title="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-alert"></div>
+
+      <form id="edit-form" novalidate>
+        <input type="hidden" id="edit-id" />
+
+        <!-- Section: Ticket Info -->
+        <div class="section-title">Ticket Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="edit-dateOfTicket">Date of Ticket <span class="required">*</span></label>
+            <input type="date" id="edit-dateOfTicket" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-csRepName">CS Rep Name <span class="required">*</span></label>
+            <input type="text" id="edit-csRepName" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-channel">Channel <span class="required">*</span></label>
+            <select id="edit-channel" required>
+              <option value="">— Select channel —</option>
+              <option>GC Main</option>
+              <option>GC Modern</option>
+              <option>GC Vault</option>
+              <option>GC Rips</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-customerUsername">Customer Username <span class="required">*</span></label>
+            <input type="text" id="edit-customerUsername" placeholder="e.g. johndoe92" required />
+          </div>
+        </div>
+
+        <!-- Section: Order Info -->
+        <div class="section-title">Order Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="edit-orderNumber">Order # <span class="required">*</span></label>
+            <input type="text" id="edit-orderNumber" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-orderDate">Order Date <span class="required">*</span></label>
+            <input type="date" id="edit-orderDate" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-issueCategory">Issue Category <span class="required">*</span></label>
+            <select id="edit-issueCategory" required>
+              <option value="">— Select category —</option>
+              <option>Shipping Issue</option>
+              <option>Wrong Item</option>
+              <option>Missing Item</option>
+              <option>Damaged Item</option>
+              <option>Return Request</option>
+              <option>Cancelled Order</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-responseStatus">Response Status <span class="required">*</span></label>
+            <select id="edit-responseStatus" required>
+              <option value="">— Select status —</option>
+              <option>Open</option>
+              <option>In Progress</option>
+              <option>Pending Customer</option>
+              <option>Resolved</option>
+              <option>Closed</option>
+            </select>
+          </div>
+          <div class="form-group span-2">
+            <label for="edit-issue">Issue Description <span class="required">*</span></label>
+            <textarea id="edit-issue" rows="4" required></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Contact & Resolution -->
+        <div class="section-title">Contact & Resolution</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="edit-lastContacted">Last Contacted <span class="required">*</span></label>
+            <input type="date" id="edit-lastContacted" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-resolutionType">Resolution Type</label>
+            <select id="edit-resolutionType">
+              <option value="">— Select if applicable —</option>
+              <option>Refund</option>
+              <option>Replacement</option>
+              <option>Cancelled Order</option>
+              <option>No Action Needed</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-totalResolutionTime">Total Resolution Time</label>
+            <input type="text" id="edit-totalResolutionTime" placeholder='e.g. "3 days", "1 week"' />
+          </div>
+          <div class="form-group span-2">
+            <label for="edit-notes">Notes</label>
+            <textarea id="edit-notes" rows="5"
+              placeholder="Add new entries at the top with today's date, e.g. '03/02/2026 — Customer replied, awaiting return label'"></textarea>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <span id="modal-updated" class="text-muted text-sm"></span>
+      <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="modal-save-btn">&#10003; Save Changes</button>
+    </div>
+  </div>
+</div><!-- /modal -->
+
+<script src="app.js"></script>
+<script>
+(function () {
+
+  /* ===== State ===== */
+  let currentFilters = {
+    search: '',
+    status: '',
+    category: '',
+    channel: '',
+    sort: 'dateOfTicket-desc',
+  };
+
+  /* ===== Stats ===== */
+  function renderStats(tickets) {
+    const all    = tickets.length;
+    const open   = tickets.filter(t => t.responseStatus === 'Open').length;
+    const prog   = tickets.filter(t => t.responseStatus === 'In Progress').length;
+    const pend   = tickets.filter(t => t.responseStatus === 'Pending Customer').length;
+    const res    = tickets.filter(t => t.responseStatus === 'Resolved' || t.responseStatus === 'Closed').length;
+
+    document.getElementById('stats-bar').innerHTML = `
+      <div class="stat-card accent">
+        <div class="stat-value">${all}</div>
+        <div class="stat-label">Total Tickets</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-value">${open}</div>
+        <div class="stat-label">Open</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-value">${prog}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card muted">
+        <div class="stat-value">${pend}</div>
+        <div class="stat-label">Pending Customer</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-value">${res}</div>
+        <div class="stat-label">Resolved / Closed</div>
+      </div>
+    `;
+  }
+
+  /* ===== Filter & Sort ===== */
+  function applyFilters(tickets) {
+    let list = [...tickets];
+    const { search, status, category, channel, sort } = currentFilters;
+
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(t =>
+        t.customerUsername.toLowerCase().includes(q) ||
+        t.orderNumber.toLowerCase().includes(q) ||
+        t.id.toLowerCase().includes(q)
+      );
+    }
+    if (status)   list = list.filter(t => t.responseStatus === status);
+    if (category) list = list.filter(t => t.issueCategory === category);
+    if (channel)  list = list.filter(t => t.channel === channel);
+
+    const [field, dir] = sort.split('-');
+    list.sort((a, b) => {
+      const va = a[field] || '';
+      const vb = b[field] || '';
+      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+      return dir === 'asc' ? cmp : -cmp;
+    });
+
+    return list;
+  }
+
+  /* ===== Render Table ===== */
+  function renderTable() {
+    const all      = getTickets();
+    const filtered = applyFilters(all);
+    const tbody    = document.getElementById('tickets-tbody');
+    const empty    = document.getElementById('empty-state');
+    const info     = document.getElementById('results-info');
+
+    renderStats(all);
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      document.querySelector('.table-wrapper').style.display = 'none';
+      empty.classList.remove('hidden');
+      info.textContent = '';
+      return;
+    }
+
+    document.querySelector('.table-wrapper').style.display = '';
+    empty.classList.add('hidden');
+    info.textContent = `Showing ${filtered.length} of ${all.length} ticket${all.length !== 1 ? 's' : ''}`;
+
+    tbody.innerHTML = filtered.map(t => `
+      <tr data-id="${escHtml(t.id)}">
+        <td class="td-id">${escHtml(t.id)}</td>
+        <td>${formatDate(t.dateOfTicket)}</td>
+        <td>${escHtml(t.csRepName)}</td>
+        <td>${escHtml(t.channel)}</td>
+        <td>${escHtml(t.customerUsername)}</td>
+        <td>${escHtml(t.orderNumber)}</td>
+        <td>${escHtml(t.issueCategory)}</td>
+        <td>${statusBadge(t.responseStatus)}</td>
+        <td>${formatDate(t.lastContacted)}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-secondary btn-sm edit-btn" data-id="${escHtml(t.id)}" title="View / Edit">
+              &#9998; Edit
+            </button>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="${escHtml(t.id)}" title="Delete ticket">
+              &#128465; Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  /* ===== Filter Events ===== */
+  document.getElementById('search').addEventListener('input', e => {
+    currentFilters.search = e.target.value.trim();
+    renderTable();
+  });
+  document.getElementById('filter-status').addEventListener('change', e => {
+    currentFilters.status = e.target.value;
+    renderTable();
+  });
+  document.getElementById('filter-category').addEventListener('change', e => {
+    currentFilters.category = e.target.value;
+    renderTable();
+  });
+  document.getElementById('filter-channel').addEventListener('change', e => {
+    currentFilters.channel = e.target.value;
+    renderTable();
+  });
+  document.getElementById('sort-by').addEventListener('change', e => {
+    currentFilters.sort = e.target.value;
+    renderTable();
+  });
+  document.getElementById('clear-filters-btn').addEventListener('click', () => {
+    currentFilters = { search: '', status: '', category: '', channel: '', sort: 'dateOfTicket-desc' };
+    document.getElementById('search').value         = '';
+    document.getElementById('filter-status').value  = '';
+    document.getElementById('filter-category').value = '';
+    document.getElementById('filter-channel').value  = '';
+    document.getElementById('sort-by').value         = 'dateOfTicket-desc';
+    renderTable();
+  });
+
+  /* ===== Table Action Delegation ===== */
+  document.getElementById('tickets-tbody').addEventListener('click', e => {
+    const editBtn   = e.target.closest('.edit-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
+
+    if (editBtn)   openEditModal(editBtn.dataset.id);
+    if (deleteBtn) handleDelete(deleteBtn.dataset.id);
+  });
+
+  /* ===== Delete ===== */
+  function handleDelete(id) {
+    if (!confirm(`Delete ticket ${id}? This cannot be undone.`)) return;
+    deleteTicket(id);
+    renderTable();
+  }
+
+  /* ===== Edit Modal ===== */
+  const overlay    = document.getElementById('modal-overlay');
+  const modalAlert = document.getElementById('modal-alert');
+
+  function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val || '';
+  }
+
+  function openEditModal(id) {
+    const ticket = getTicketById(id);
+    if (!ticket) return;
+
+    modalAlert.innerHTML = '';
+    document.getElementById('modal-ticket-id').textContent = ticket.id;
+    document.getElementById('modal-updated').textContent =
+      ticket.updatedAt ? 'Last saved: ' + new Date(ticket.updatedAt).toLocaleString() : '';
+
+    setVal('edit-id',                  ticket.id);
+    setVal('edit-dateOfTicket',        ticket.dateOfTicket);
+    setVal('edit-csRepName',           ticket.csRepName);
+    setVal('edit-channel',             ticket.channel);
+    setVal('edit-customerUsername',    ticket.customerUsername);
+    setVal('edit-orderNumber',         ticket.orderNumber);
+    setVal('edit-orderDate',           ticket.orderDate);
+    setVal('edit-issueCategory',       ticket.issueCategory);
+    setVal('edit-issue',               ticket.issue);
+    setVal('edit-responseStatus',      ticket.responseStatus);
+    setVal('edit-lastContacted',       ticket.lastContacted);
+    setVal('edit-resolutionType',      ticket.resolutionType);
+    setVal('edit-notes',               ticket.notes);
+    setVal('edit-totalResolutionTime', ticket.totalResolutionTime);
+
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('edit-csRepName').focus();
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+    modalAlert.innerHTML = '';
+  }
+
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeModal();
+  });
+
+  /* Save edits */
+  document.getElementById('modal-save-btn').addEventListener('click', () => {
+    const form = document.getElementById('edit-form');
+    modalAlert.innerHTML = '';
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const existing = getTicketById(document.getElementById('edit-id').value);
+    if (!existing) return;
+
+    const updated = {
+      ...existing,
+      dateOfTicket:        document.getElementById('edit-dateOfTicket').value,
+      csRepName:           document.getElementById('edit-csRepName').value.trim(),
+      channel:             document.getElementById('edit-channel').value,
+      customerUsername:    document.getElementById('edit-customerUsername').value.trim(),
+      orderNumber:         document.getElementById('edit-orderNumber').value.trim(),
+      orderDate:           document.getElementById('edit-orderDate').value,
+      issueCategory:       document.getElementById('edit-issueCategory').value,
+      issue:               document.getElementById('edit-issue').value.trim(),
+      responseStatus:      document.getElementById('edit-responseStatus').value,
+      lastContacted:       document.getElementById('edit-lastContacted').value,
+      resolutionType:      document.getElementById('edit-resolutionType').value,
+      notes:               document.getElementById('edit-notes').value.trim(),
+      totalResolutionTime: document.getElementById('edit-totalResolutionTime').value.trim(),
+      updatedAt:           new Date().toISOString(),
+    };
+
+    saveTicket(updated);
+    renderTable();
+
+    modalAlert.innerHTML = `<div class="alert alert-success">&#10003; Changes saved successfully.</div>`;
+    document.getElementById('modal-updated').textContent =
+      'Last saved: ' + new Date(updated.updatedAt).toLocaleString();
+
+    setTimeout(() => { modalAlert.innerHTML = ''; }, 4000);
+  });
+
+  /* ===== Init ===== */
+  renderTable();
+
+})();
+</script>
+</body>
+</html>
