@@ -320,7 +320,7 @@
       agingLegend.style.display = 'none';
       ticketCount.textContent = '';
       try {
-        allTicketsCache = await getAllTickets();
+        allTicketsCache = (await getAllTickets()).filter(t => t.id && t.id.trim());
         loadingState.style.display = 'none';
         renderTable();
       } catch (err) {
@@ -565,21 +565,27 @@
       modalTitle.textContent = `Edit Ticket — ${t.id}`;
       document.getElementById('edit-id').value = t.id;
       document.getElementById('edit-ticket-id-display').value = t.id;
-      setVal('edit-dateOfTicket', t.dateOfTicket);
+      setVal('edit-dateOfTicket', dateOnly(t.dateOfTicket));
       setVal('edit-repName', t.repName);
       setVal('edit-channel', t.channel);
       setVal('edit-customerUsername', t.customerUsername);
       setVal('edit-orderNumber', t.orderNumber);
-      setVal('edit-orderDate', t.orderDate);
+      setVal('edit-orderDate', dateOnly(t.orderDate));
       setVal('edit-issueCategory', t.issueCategory);
       setVal('edit-issue', t.issue);
       setVal('edit-responseStatus', t.responseStatus);
-      setVal('edit-lastContacted', t.lastContacted);
+      setVal('edit-lastContacted', dateOnly(t.lastContacted));
       setVal('edit-resolutionType', t.resolutionType || '');
       setVal('edit-totalResolutionTime', t.totalResolutionTime || '');
       setVal('edit-notes', t.notes);
       modalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+    }
+
+    function dateOnly(dateStr) {
+      if (!dateStr) return '';
+      const m = String(dateStr).match(/^(\d{4}-\d{2}-\d{2})/);
+      return m ? m[1] : '';
     }
 
     function setVal(id, val) {
