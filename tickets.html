@@ -108,6 +108,14 @@
       <span class="aging-legend-muted">· Not shown for Resolved or Closed</span>
     </div>
 
+    <!-- Loading state -->
+    <div id="loading-state" style="display:none;">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading tickets…</p>
+      </div>
+    </div>
+
     <!-- Table -->
     <div class="table-wrapper" id="table-wrapper">
       <table id="tickets-table">
@@ -276,21 +284,24 @@
   <script>
     // --- State ---
     let currentEditId = null;
+    let allTicketsCache = [];
 
     // --- DOM refs ---
-    const tbody         = document.getElementById('tickets-tbody');
-    const emptyState    = document.getElementById('empty-state');
-    const tableWrapper  = document.getElementById('table-wrapper');
-    const ticketCount   = document.getElementById('ticket-count');
-    const flash         = document.getElementById('flash-message');
-    const modalOverlay  = document.getElementById('modal-overlay');
-    const modalTitle    = document.getElementById('modal-title');
+    const tbody          = document.getElementById('tickets-tbody');
+    const emptyState     = document.getElementById('empty-state');
+    const tableWrapper   = document.getElementById('table-wrapper');
+    const ticketCount    = document.getElementById('ticket-count');
+    const flash          = document.getElementById('flash-message');
+    const modalOverlay   = document.getElementById('modal-overlay');
+    const modalTitle     = document.getElementById('modal-title');
+    const loadingState   = document.getElementById('loading-state');
+    const agingLegend    = document.getElementById('aging-legend');
 
-    const searchInput   = document.getElementById('search');
-    const statusFilter  = document.getElementById('filter-status');
-    const categoryFilter= document.getElementById('filter-category');
-    const channelFilter = document.getElementById('filter-channel');
-    const sortSelect    = document.getElementById('sort-by');
+    const searchInput    = document.getElementById('search');
+    const statusFilter   = document.getElementById('filter-status');
+    const categoryFilter = document.getElementById('filter-category');
+    const channelFilter  = document.getElementById('filter-channel');
+    const sortSelect     = document.getElementById('sort-by');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
     // --- Flash ---
@@ -301,9 +312,26 @@
       setTimeout(() => { flash.style.display = 'none'; }, 5000);
     }
 
-    // --- Render table ---
+    // --- Load tickets from Google Sheets ---
+    async function loadTickets() {
+      loadingState.style.display = 'block';
+      tableWrapper.style.display = 'none';
+      emptyState.style.display = 'none';
+      agingLegend.style.display = 'none';
+      ticketCount.textContent = '';
+      try {
+        allTicketsCache = await getAllTickets();
+        loadingState.style.display = 'none';
+        renderTable();
+      } catch (err) {
+        loadingState.style.display = 'none';
+        showFlash('Could not load tickets: ' + err.message, 'error');
+      }
+    }
+
+    // --- Render table (reads from allTicketsCache) ---
     function getFilteredSortedTickets() {
-      let tickets = getAllTickets();
+      let tickets = [...allTicketsCache];
 
       const q = searchInput.value.trim().toLowerCase();
       if (q) {
@@ -325,10 +353,10 @@
 
       const sort = sortSelect.value;
       tickets.sort((a, b) => {
-        if (sort === 'date-asc')        return (a.dateOfTicket || '') < (b.dateOfTicket || '') ? -1 : 1;
-        if (sort === 'date-desc')       return (a.dateOfTicket || '') > (b.dateOfTicket || '') ? -1 : 1;
-        if (sort === 'contacted-asc')   return (a.lastContacted || '') < (b.lastContacted || '') ? -1 : 1;
-        if (sort === 'contacted-desc')  return (a.lastContacted || '') > (b.lastContacted || '') ? -1 : 1;
+        if (sort === 'date-asc')       return (a.dateOfTicket || '') < (b.dateOfTicket || '') ? -1 : 1;
+        if (sort === 'date-desc')      return (a.dateOfTicket || '') > (b.dateOfTicket || '') ? -1 : 1;
+        if (sort === 'contacted-asc')  return (a.lastContacted || '') < (b.lastContacted || '') ? -1 : 1;
+        if (sort === 'contacted-desc') return (a.lastContacted || '') > (b.lastContacted || '') ? -1 : 1;
         return 0;
       });
 
@@ -341,14 +369,14 @@
       if (tickets.length === 0) {
         tableWrapper.style.display = 'none';
         emptyState.style.display = 'block';
+        agingLegend.style.display = 'none';
         ticketCount.textContent = '';
-        document.getElementById('aging-legend').style.display = 'none';
         return;
       }
 
       tableWrapper.style.display = 'block';
       emptyState.style.display = 'none';
-      document.getElementById('aging-legend').style.display = 'flex';
+      agingLegend.style.display = 'flex';
       ticketCount.innerHTML = `Showing <strong>${tickets.length}</strong> ticket${tickets.length !== 1 ? 's' : ''}`;
 
       tbody.innerHTML = tickets.map(t => {
@@ -395,13 +423,16 @@
     }
 
     // --- Delete ---
-    function handleDelete(id) {
-      const ticket = getTicketById(id);
+    async function handleDelete(id) {
+      const ticket = allTicketsCache.find(t => t.id === id);
       if (!ticket) return;
-      if (confirm(`Delete ticket ${ticket.id}?\n\nCustomer: ${ticket.customerUsername}\nOrder: ${ticket.orderNumber}\n\nThis cannot be undone.`)) {
-        deleteTicket(id);
-        renderTable();
+      if (!confirm(`Delete ticket ${ticket.id}?\n\nCustomer: ${ticket.customerUsername}\nOrder: ${ticket.orderNumber}\n\nThis cannot be undone.`)) return;
+      try {
+        await deleteTicket(id);
+        await loadTickets();
         showFlash(`Ticket ${ticket.id} deleted.`, 'success');
+      } catch (err) {
+        showFlash('Failed to delete ticket: ' + err.message, 'error');
       }
     }
 
@@ -439,7 +470,7 @@
     }
 
     function renderCustomerModalBody(username) {
-      const tickets = getAllTickets()
+      const tickets = allTicketsCache
         .filter(t => (t.customerUsername || '').toLowerCase() === username.toLowerCase())
         .sort((a, b) => (a.dateOfTicket || '') < (b.dateOfTicket || '') ? 1 : -1);
 
@@ -507,16 +538,28 @@
     }
 
     // --- Inline Status Update ---
-    function handleStatusChange(id, el) {
+    async function handleStatusChange(id, el) {
       const newStatus = el.value;
-      updateTicket(id, { responseStatus: newStatus });
-      el.className = 'status-select ' + statusBadgeClass(newStatus);
-      showFlash(`Ticket ${id} — status updated to "${newStatus}".`, 'success');
+      const prevStatus = (allTicketsCache.find(t => t.id === id) || {}).responseStatus;
+      el.disabled = true;
+      try {
+        await updateTicket(id, { responseStatus: newStatus });
+        el.className = 'status-select ' + statusBadgeClass(newStatus);
+        const t = allTicketsCache.find(t => t.id === id);
+        if (t) t.responseStatus = newStatus;
+        showFlash(`Ticket ${id} — status updated to "${newStatus}".`, 'success');
+      } catch (err) {
+        el.value = prevStatus || newStatus;
+        el.className = 'status-select ' + statusBadgeClass(prevStatus || newStatus);
+        showFlash('Failed to update status: ' + err.message, 'error');
+      } finally {
+        el.disabled = false;
+      }
     }
 
     // --- Edit Modal ---
     function openEditModal(id) {
-      const t = getTicketById(id);
+      const t = allTicketsCache.find(ticket => ticket.id === id);
       if (!t) return;
       currentEditId = id;
       modalTitle.textContent = `Edit Ticket — ${t.id}`;
@@ -561,7 +604,7 @@
       if (e.key === 'Escape') { closeModal(); closeCustomerModal(); }
     });
 
-    document.getElementById('modal-save-btn').addEventListener('click', function() {
+    document.getElementById('modal-save-btn').addEventListener('click', async function() {
       if (!currentEditId) return;
 
       const required = [
@@ -578,35 +621,45 @@
         ['edit-notes', 'Notes'],
       ];
 
-      for (const [id, label] of required) {
-        const val = document.getElementById(id).value.trim();
+      for (const [fieldId, label] of required) {
+        const val = document.getElementById(fieldId).value.trim();
         if (!val) {
           alert(`"${label}" is required.`);
-          document.getElementById(id).focus();
+          document.getElementById(fieldId).focus();
           return;
         }
       }
 
       const updates = {
-        dateOfTicket:       document.getElementById('edit-dateOfTicket').value.trim(),
-        repName:            document.getElementById('edit-repName').value.trim(),
-        channel:            document.getElementById('edit-channel').value,
-        customerUsername:   document.getElementById('edit-customerUsername').value.trim(),
-        orderNumber:        document.getElementById('edit-orderNumber').value.trim(),
-        orderDate:          document.getElementById('edit-orderDate').value.trim(),
-        issueCategory:      document.getElementById('edit-issueCategory').value,
-        issue:              document.getElementById('edit-issue').value.trim(),
-        responseStatus:     document.getElementById('edit-responseStatus').value,
-        lastContacted:      document.getElementById('edit-lastContacted').value.trim(),
-        resolutionType:     document.getElementById('edit-resolutionType').value,
-        totalResolutionTime:document.getElementById('edit-totalResolutionTime').value.trim(),
-        notes:              document.getElementById('edit-notes').value.trim(),
+        dateOfTicket:        document.getElementById('edit-dateOfTicket').value.trim(),
+        repName:             document.getElementById('edit-repName').value.trim(),
+        channel:             document.getElementById('edit-channel').value,
+        customerUsername:    document.getElementById('edit-customerUsername').value.trim(),
+        orderNumber:         document.getElementById('edit-orderNumber').value.trim(),
+        orderDate:           document.getElementById('edit-orderDate').value.trim(),
+        issueCategory:       document.getElementById('edit-issueCategory').value,
+        issue:               document.getElementById('edit-issue').value.trim(),
+        responseStatus:      document.getElementById('edit-responseStatus').value,
+        lastContacted:       document.getElementById('edit-lastContacted').value.trim(),
+        resolutionType:      document.getElementById('edit-resolutionType').value,
+        totalResolutionTime: document.getElementById('edit-totalResolutionTime').value.trim(),
+        notes:               document.getElementById('edit-notes').value.trim(),
       };
 
-      updateTicket(currentEditId, updates);
-      closeModal();
-      renderTable();
-      showFlash(`Ticket ${currentEditId} updated successfully.`, 'success');
+      const saveBtn = document.getElementById('modal-save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+      try {
+        await updateTicket(currentEditId, updates);
+        closeModal();
+        await loadTickets();
+        showFlash(`Ticket ${currentEditId} updated successfully.`, 'success');
+      } catch (err) {
+        showFlash('Failed to save changes: ' + err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+      }
     });
 
     // --- Customer history search bar ---
@@ -650,7 +703,7 @@
     });
 
     // --- Init ---
-    renderTable();
+    loadTickets();
   </script>
 
 </body>

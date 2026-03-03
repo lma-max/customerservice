@@ -222,7 +222,7 @@
       return null;
     }
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
       const data = getFormData();
       const error = validateForm(data);
@@ -230,14 +230,23 @@
         showFlash(error, 'error');
         return;
       }
-      const ticket = addTicket(data);
-      showFlash(`Ticket ${ticket.id} submitted successfully! The form has been cleared.`, 'success');
-      form.reset();
-      // Re-set default dates
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('dateOfTicket').value = today;
-      document.getElementById('lastContacted').value = today;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting…';
+      try {
+        const ticket = await addTicket(data);
+        showFlash(`Ticket ${ticket.id} submitted successfully! The form has been cleared.`, 'success');
+        form.reset();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dateOfTicket').value = today;
+        document.getElementById('lastContacted').value = today;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        showFlash('Failed to submit ticket: ' + err.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '&#10003; Submit Ticket';
+      }
     });
 
     clearBtn.addEventListener('click', function() {

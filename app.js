@@ -1,69 +1,67 @@
 /* =============================================
-   CS Ticket Tracker — Shared Utilities
+   CS Ticket Tracker — Google Sheets API Layer
    ============================================= */
 
-const STORAGE_KEY = 'cs_tickets';
-const COUNTER_KEY = 'cs_ticket_counter';
+// ⚠️  Step 3: After deploying your Apps Script web app, paste the URL below.
+const API_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
-/* --- Ticket Storage --- */
+/* --- API requests --- */
 
-function getAllTickets() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
+async function getAllTickets() {
+  const res = await fetch(`${API_URL}?action=getAll`, { redirect: 'follow' });
+  if (!res.ok) throw new Error(`Server error (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.tickets || [];
 }
 
-function saveAllTickets(tickets) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+async function addTicket(ticketData) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'add', ticket: ticketData }),
+  });
+  if (!res.ok) throw new Error(`Server error (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.ticket;
 }
 
-function getNextTicketId() {
-  const counter = parseInt(localStorage.getItem(COUNTER_KEY) || '0', 10) + 1;
-  localStorage.setItem(COUNTER_KEY, String(counter));
-  return 'TKT-' + String(counter).padStart(3, '0');
+async function updateTicket(id, updates) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'update', id, updates }),
+  });
+  if (!res.ok) throw new Error(`Server error (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.ticket;
 }
 
-function addTicket(ticketData) {
-  const tickets = getAllTickets();
-  const ticket = {
-    id: getNextTicketId(),
-    createdAt: new Date().toISOString(),
-    ...ticketData,
-  };
-  tickets.push(ticket);
-  saveAllTickets(tickets);
-  return ticket;
-}
-
-function updateTicket(id, updates) {
-  const tickets = getAllTickets();
-  const idx = tickets.findIndex(t => t.id === id);
-  if (idx === -1) return null;
-  tickets[idx] = { ...tickets[idx], ...updates, updatedAt: new Date().toISOString() };
-  saveAllTickets(tickets);
-  return tickets[idx];
-}
-
-function deleteTicket(id) {
-  const tickets = getAllTickets().filter(t => t.id !== id);
-  saveAllTickets(tickets);
-}
-
-function getTicketById(id) {
-  return getAllTickets().find(t => t.id === id) || null;
+async function deleteTicket(id) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'delete', id }),
+  });
+  if (!res.ok) throw new Error(`Server error (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
 }
 
 /* --- Status Badge Helper --- */
 
 function statusBadgeClass(status) {
   const map = {
-    'Open': 'badge-open',
-    'In Progress': 'badge-inprogress',
+    'Open':             'badge-open',
+    'In Progress':      'badge-inprogress',
     'Pending Customer': 'badge-pending',
-    'Resolved': 'badge-resolved',
-    'Closed': 'badge-closed',
+    'Resolved':         'badge-resolved',
+    'Closed':           'badge-closed',
   };
   return map[status] || 'badge-closed';
 }
@@ -77,7 +75,7 @@ function formatDate(dateStr) {
   return `${m}/${d}/${y}`;
 }
 
-/* --- Set active nav link --- */
+/* --- Active nav --- */
 
 function setActiveNav() {
   const page = window.location.pathname.split('/').pop() || 'index.html';
