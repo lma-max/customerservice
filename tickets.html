@@ -324,7 +324,7 @@
           .filter(t => t.id && t.id.trim() && t.repName && t.repName.trim())
           .map(t => ({
             ...t,
-            responseStatus: (t.responseStatus || '').toLowerCase() === 'no' ? 'Resolved' : t.responseStatus,
+            responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
           }));
         loadingState.style.display = 'none';
         renderTable();
