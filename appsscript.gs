@@ -55,6 +55,10 @@ function rowToObj(row) {
       obj[col] = (val !== undefined && val !== null) ? String(val) : '';
     }
   });
+  // Normalize legacy "No" / "no" values entered directly in the sheet
+  if (obj.responseStatus && obj.responseStatus.toLowerCase() === 'no') {
+    obj.responseStatus = 'Resolved';
+  }
   return obj;
 }
 

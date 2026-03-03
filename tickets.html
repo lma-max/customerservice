@@ -320,7 +320,12 @@
       agingLegend.style.display = 'none';
       ticketCount.textContent = '';
       try {
-        allTicketsCache = (await getAllTickets()).filter(t => t.id && t.id.trim() && t.repName && t.repName.trim());
+        allTicketsCache = (await getAllTickets())
+          .filter(t => t.id && t.id.trim() && t.repName && t.repName.trim())
+          .map(t => ({
+            ...t,
+            responseStatus: (t.responseStatus || '').toLowerCase() === 'no' ? 'Resolved' : t.responseStatus,
+          }));
         loadingState.style.display = 'none';
         renderTable();
       } catch (err) {
