@@ -408,7 +408,7 @@
             <td>${formatDate(t.lastContacted)}</td>
             <td style="max-width:260px;">
               ${t.notes
-                ? `<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:0.82rem;color:#374151;white-space:pre-wrap;" title="${esc(t.notes)}">${esc(t.notes)}</span>`
+                ? `<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:0.82rem;color:#374151;white-space:normal;" title="${esc(t.notes)}">${esc(t.notes)}</span>`
                 : '<span style="color:#9ca3af;">—</span>'}
             </td>
             <td>
@@ -449,8 +449,15 @@
     // --- Ticket Aging ---
     function ticketAgeDays(dateStr) {
       if (!dateStr) return null;
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const ticketDate = new Date(y, m - 1, d);
+      let ticketDate;
+      const iso = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) {
+        ticketDate = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+      } else {
+        const parsed = new Date(dateStr);
+        if (isNaN(parsed)) return null;
+        ticketDate = new Date(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate());
+      }
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return Math.floor((today - ticketDate) / (1000 * 60 * 60 * 24));
@@ -594,8 +601,14 @@
 
     function dateOnly(dateStr) {
       if (!dateStr) return '';
-      const m = String(dateStr).match(/^(\d{4}-\d{2}-\d{2})/);
-      return m ? m[1] : '';
+      const iso = String(dateStr).match(/^(\d{4}-\d{2}-\d{2})/);
+      if (iso) return iso[1];
+      const parsed = new Date(dateStr);
+      if (isNaN(parsed)) return '';
+      const y = parsed.getUTCFullYear();
+      const m = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(parsed.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     }
 
     function setVal(id, val) {
