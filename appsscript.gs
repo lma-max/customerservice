@@ -91,7 +91,7 @@ function getAll() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { tickets: [] };
   const rows = sheet.getRange(2, 1, lastRow - 1, COLUMNS.length).getValues();
-  const tickets = rows.map(rowToObj).filter(t => t.repName && t.repName.trim());
+  const tickets = rows.map(rowToObj).filter(t => t.id && t.id.trim());
   return { tickets };
 }
 
