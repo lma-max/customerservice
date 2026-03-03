@@ -320,7 +320,7 @@
       agingLegend.style.display = 'none';
       ticketCount.textContent = '';
       try {
-        allTicketsCache = (await getAllTickets()).filter(t => t.id && t.id.trim());
+        allTicketsCache = (await getAllTickets()).filter(t => t.id && t.id.trim() && t.repName && t.repName.trim());
         loadingState.style.display = 'none';
         renderTable();
       } catch (err) {
