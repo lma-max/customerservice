@@ -387,6 +387,92 @@ tbody td {
 .badge-resolved    { background: #d1fae5; color: #065f46; }
 .badge-closed      { background: #f3f4f6; color: #374151; }
 
+/* --- Customer History --- */
+.customer-history-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+}
+
+.customer-history-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.customer-history-bar input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+}
+
+.customer-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.customer-link:hover {
+  color: var(--accent-hover);
+}
+
+.customer-modal {
+  max-width: 860px;
+}
+
+.customer-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.customer-stat {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.customer-stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.customer-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.customer-no-tickets {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px;
+}
+
 /* --- Ticket Aging Indicators --- */
 tr.age-green td:first-child { border-left: 4px solid #22c55e; }
 tr.age-yellow td:first-child { border-left: 4px solid #f59e0b; }

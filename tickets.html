@@ -89,6 +89,13 @@
       </div>
     </div>
 
+    <!-- Customer History Search -->
+    <div class="customer-history-bar">
+      <span class="customer-history-label">Customer History:</span>
+      <input type="text" id="customer-history-input" placeholder="Enter a username to view their full history…" />
+      <button class="btn btn-secondary btn-sm" id="customer-history-btn">View History</button>
+    </div>
+
     <!-- Ticket count -->
     <div class="ticket-count" id="ticket-count"></div>
 
@@ -252,6 +259,19 @@
     </div>
   </div>
 
+  <!-- Customer Profile Modal -->
+  <div class="modal-overlay hidden" id="customer-modal-overlay">
+    <div class="modal customer-modal" role="dialog" aria-modal="true" aria-labelledby="customer-modal-title">
+      <div class="modal-header">
+        <span class="modal-title" id="customer-modal-title">Customer History</span>
+        <button class="modal-close" id="customer-modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="customer-modal-body">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script>
     // --- State ---
@@ -340,7 +360,7 @@
             <td>${formatDate(t.dateOfTicket)}</td>
             <td>${esc(t.repName)}</td>
             <td>${esc(t.channel)}</td>
-            <td>${esc(t.customerUsername)}</td>
+            <td><button class="customer-link" data-username="${esc(t.customerUsername)}">${esc(t.customerUsername)}</button></td>
             <td>${esc(t.orderNumber)}</td>
             <td>${esc(t.issueCategory)}</td>
             <td>
@@ -404,6 +424,88 @@
       return 'age-red';
     }
 
+    // --- Customer History ---
+    function openCustomerModal(username) {
+      if (!username) return;
+      document.getElementById('customer-modal-title').textContent = 'Customer: ' + username;
+      renderCustomerModalBody(username);
+      document.getElementById('customer-modal-overlay').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCustomerModal() {
+      document.getElementById('customer-modal-overlay').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function renderCustomerModalBody(username) {
+      const tickets = getAllTickets()
+        .filter(t => (t.customerUsername || '').toLowerCase() === username.toLowerCase())
+        .sort((a, b) => (a.dateOfTicket || '') < (b.dateOfTicket || '') ? 1 : -1);
+
+      const body = document.getElementById('customer-modal-body');
+
+      if (tickets.length === 0) {
+        body.innerHTML = `<p class="customer-no-tickets">No tickets found for <strong>${esc(username)}</strong>.</p>`;
+        return;
+      }
+
+      const total = tickets.length;
+      const mostRecent = formatDate(tickets[0].dateOfTicket);
+
+      const catCounts = {};
+      tickets.forEach(t => {
+        if (t.issueCategory) catCounts[t.issueCategory] = (catCounts[t.issueCategory] || 0) + 1;
+      });
+      const topCat = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+
+      const rows = tickets.map(t => {
+        const badgeClass = statusBadgeClass(t.responseStatus);
+        return `
+          <tr>
+            <td><code style="font-size:0.82rem;">${esc(t.id)}</code></td>
+            <td>${formatDate(t.dateOfTicket)}</td>
+            <td>${esc(t.orderNumber)}</td>
+            <td>${esc(t.issueCategory)}</td>
+            <td><span class="badge ${badgeClass}">${esc(t.responseStatus)}</span></td>
+            <td>${formatDate(t.lastContacted)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      body.innerHTML = `
+        <div class="customer-stats">
+          <div class="customer-stat">
+            <div class="customer-stat-value">${total}</div>
+            <div class="customer-stat-label">Total Tickets</div>
+          </div>
+          <div class="customer-stat">
+            <div class="customer-stat-value">${esc(topCat)}</div>
+            <div class="customer-stat-label">Most Common Issue</div>
+          </div>
+          <div class="customer-stat">
+            <div class="customer-stat-value">${mostRecent}</div>
+            <div class="customer-stat-label">Most Recent Ticket</div>
+          </div>
+        </div>
+        <div class="table-wrapper" style="margin-top:16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Date</th>
+                <th>Order #</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Last Contacted</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
     // --- Inline Status Update ---
     function handleStatusChange(id, el) {
       const newStatus = el.value;
@@ -456,7 +558,7 @@
     });
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') { closeModal(); closeCustomerModal(); }
     });
 
     document.getElementById('modal-save-btn').addEventListener('click', function() {
@@ -505,6 +607,31 @@
       closeModal();
       renderTable();
       showFlash(`Ticket ${currentEditId} updated successfully.`, 'success');
+    });
+
+    // --- Customer history search bar ---
+    document.getElementById('customer-history-btn').addEventListener('click', function() {
+      const username = document.getElementById('customer-history-input').value.trim();
+      if (username) openCustomerModal(username);
+    });
+
+    document.getElementById('customer-history-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const username = this.value.trim();
+        if (username) openCustomerModal(username);
+      }
+    });
+
+    document.getElementById('customer-modal-close-btn').addEventListener('click', closeCustomerModal);
+
+    document.getElementById('customer-modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeCustomerModal();
+    });
+
+    // Customer link click delegation
+    tbody.addEventListener('click', function(e) {
+      const btn = e.target.closest('.customer-link');
+      if (btn) openCustomerModal(btn.dataset.username);
     });
 
     // --- Filters ---
