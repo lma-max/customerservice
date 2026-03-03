@@ -321,7 +321,6 @@
       ticketCount.textContent = '';
       try {
         allTicketsCache = (await getAllTickets())
-          .filter(t => t.id && t.id.trim())
           .map(t => ({
             ...t,
             responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
