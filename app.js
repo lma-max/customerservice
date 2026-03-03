@@ -69,7 +69,8 @@ function statusBadgeClass(status) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  const [y, m, d] = dateStr.split('-');
+  const datePart = dateStr.split('T')[0]; // strip time if present
+  const [y, m, d] = datePart.split('-');
   if (!y || !m || !d) return dateStr;
   return `${m}/${d}/${y}`;
 }

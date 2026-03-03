@@ -48,7 +48,12 @@ function getSheet() {
 function rowToObj(row) {
   const obj = {};
   COLUMNS.forEach((col, i) => {
-    obj[col] = (row[i] !== undefined && row[i] !== null) ? String(row[i]) : '';
+    const val = row[i];
+    if (val instanceof Date) {
+      obj[col] = Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    } else {
+      obj[col] = (val !== undefined && val !== null) ? String(val) : '';
+    }
   });
   return obj;
 }
@@ -82,7 +87,8 @@ function getAll() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { tickets: [] };
   const rows = sheet.getRange(2, 1, lastRow - 1, COLUMNS.length).getValues();
-  return { tickets: rows.map(rowToObj) };
+  const tickets = rows.map(rowToObj).filter(t => t.repName && t.repName.trim());
+  return { tickets };
 }
 
 function addTicket(data) {
