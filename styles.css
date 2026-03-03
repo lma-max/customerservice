@@ -835,14 +835,6 @@ tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
   .modal-overlay {
     padding: 20px 12px;
   }
-
-  thead th:nth-child(n+5) {
-    display: none;
-  }
-
-  tbody td:nth-child(n+5) {
-    display: none;
-  }
 }
 
 /* --- Loading State --- */
