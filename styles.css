@@ -387,6 +387,47 @@ tbody td {
 .badge-resolved    { background: #d1fae5; color: #065f46; }
 .badge-closed      { background: #f3f4f6; color: #374151; }
 
+/* --- Ticket Aging Indicators --- */
+tr.age-green td:first-child { border-left: 4px solid #22c55e; }
+tr.age-yellow td:first-child { border-left: 4px solid #f59e0b; }
+tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
+
+.aging-legend {
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.aging-legend-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.aging-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.aging-pip {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.aging-pip-green  { background: #22c55e; }
+.aging-pip-yellow { background: #f59e0b; }
+.aging-pip-red    { background: #ef4444; }
+
+.aging-legend-muted {
+  font-style: italic;
+}
+
 /* --- Inline Status Select --- */
 .status-select {
   border: none;

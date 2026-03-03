@@ -92,6 +92,15 @@
     <!-- Ticket count -->
     <div class="ticket-count" id="ticket-count"></div>
 
+    <!-- Aging legend -->
+    <div class="aging-legend" id="aging-legend" style="display:none;">
+      <span class="aging-legend-title">Ticket Age:</span>
+      <span class="aging-item"><span class="aging-pip aging-pip-green"></span>0–2 days</span>
+      <span class="aging-item"><span class="aging-pip aging-pip-yellow"></span>3–5 days</span>
+      <span class="aging-item"><span class="aging-pip aging-pip-red"></span>6+ days</span>
+      <span class="aging-legend-muted">· Not shown for Resolved or Closed</span>
+    </div>
+
     <!-- Table -->
     <div class="table-wrapper" id="table-wrapper">
       <table id="tickets-table">
@@ -313,17 +322,20 @@
         tableWrapper.style.display = 'none';
         emptyState.style.display = 'block';
         ticketCount.textContent = '';
+        document.getElementById('aging-legend').style.display = 'none';
         return;
       }
 
       tableWrapper.style.display = 'block';
       emptyState.style.display = 'none';
+      document.getElementById('aging-legend').style.display = 'flex';
       ticketCount.innerHTML = `Showing <strong>${tickets.length}</strong> ticket${tickets.length !== 1 ? 's' : ''}`;
 
       tbody.innerHTML = tickets.map(t => {
         const badgeClass = statusBadgeClass(t.responseStatus);
+        const ageClass = agingClass(t);
         return `
-          <tr>
+          <tr${ageClass ? ` class="${ageClass}"` : ''}>
             <td><code style="font-size:0.82rem;">${esc(t.id)}</code></td>
             <td>${formatDate(t.dateOfTicket)}</td>
             <td>${esc(t.repName)}</td>
@@ -371,6 +383,25 @@
         renderTable();
         showFlash(`Ticket ${ticket.id} deleted.`, 'success');
       }
+    }
+
+    // --- Ticket Aging ---
+    function ticketAgeDays(dateStr) {
+      if (!dateStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const ticketDate = new Date(y, m - 1, d);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return Math.floor((today - ticketDate) / (1000 * 60 * 60 * 24));
+    }
+
+    function agingClass(ticket) {
+      if (ticket.responseStatus === 'Resolved' || ticket.responseStatus === 'Closed') return '';
+      const days = ticketAgeDays(ticket.dateOfTicket);
+      if (days === null || days < 0) return '';
+      if (days <= 2) return 'age-green';
+      if (days <= 5) return 'age-yellow';
+      return 'age-red';
     }
 
     // --- Inline Status Update ---
