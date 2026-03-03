@@ -2,7 +2,6 @@
    CS Ticket Tracker — Google Sheets API Layer
    ============================================= */
 
-// ⚠️  Step 3: After deploying your Apps Script web app, paste the URL below.
 const API_URL = 'https://script.google.com/macros/s/AKfycbx2d4scNLsiJJMZ2yZ3A9QrfDGavzx_7nyjzW8cFX5okn2F3nFRp9PdR3LrdbdSp8Zi3g/exec';
 
 /* --- API requests --- */
