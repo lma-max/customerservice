@@ -331,7 +331,15 @@
             <td>${esc(t.customerUsername)}</td>
             <td>${esc(t.orderNumber)}</td>
             <td>${esc(t.issueCategory)}</td>
-            <td><span class="badge ${badgeClass}">${esc(t.responseStatus)}</span></td>
+            <td>
+              <select class="status-select ${badgeClass}" onchange="handleStatusChange('${esc(t.id)}', this)">
+                <option${t.responseStatus === 'Open' ? ' selected' : ''}>Open</option>
+                <option${t.responseStatus === 'In Progress' ? ' selected' : ''}>In Progress</option>
+                <option${t.responseStatus === 'Pending Customer' ? ' selected' : ''}>Pending Customer</option>
+                <option${t.responseStatus === 'Resolved' ? ' selected' : ''}>Resolved</option>
+                <option${t.responseStatus === 'Closed' ? ' selected' : ''}>Closed</option>
+              </select>
+            </td>
             <td>${formatDate(t.lastContacted)}</td>
             <td>
               <div style="display:flex;gap:6px;">
@@ -363,6 +371,14 @@
         renderTable();
         showFlash(`Ticket ${ticket.id} deleted.`, 'success');
       }
+    }
+
+    // --- Inline Status Update ---
+    function handleStatusChange(id, el) {
+      const newStatus = el.value;
+      updateTicket(id, { responseStatus: newStatus });
+      el.className = 'status-select ' + statusBadgeClass(newStatus);
+      showFlash(`Ticket ${id} — status updated to "${newStatus}".`, 'success');
     }
 
     // --- Edit Modal ---
