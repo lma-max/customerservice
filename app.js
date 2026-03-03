@@ -69,8 +69,17 @@ function statusBadgeClass(status) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) return `${match[2]}/${match[3]}/${match[1]}`;
+  // Handles yyyy-MM-dd and ISO strings like 2026-03-03T12:00:00Z
+  const isoMatch = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[2]}/${isoMatch[3]}/${isoMatch[1]}`;
+  // Fallback: let the browser parse other formats (e.g. "Mon Mar 03 2026 00:00:00 GMT+0000")
+  const d = new Date(dateStr);
+  if (!isNaN(d)) {
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${m}/${day}/${y}`;
+  }
   return dateStr;
 }
 
