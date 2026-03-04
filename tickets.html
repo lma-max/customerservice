@@ -365,6 +365,7 @@
           .map(t => {
             let status = (t.responseStatus || '').trim();
             if (status.toLowerCase() === 'yes') status = 'Resolved';
+            else if (status.toLowerCase() === 'no' || status === '') status = 'Open';
             else {
               const match = knownStatuses.find(s => s.toLowerCase() === status.toLowerCase());
               if (match) status = match;
@@ -382,7 +383,6 @@
 
     // --- Render stats (always based on full dataset) ---
     function renderStats() {
-      console.log('[Stats] Distinct statuses:', [...new Set(allTicketsCache.map(t => t.responseStatus))]);
       const total      = allTicketsCache.length;
       const open       = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
       const inProgress = allTicketsCache.filter(t => t.responseStatus === 'In Progress').length;
