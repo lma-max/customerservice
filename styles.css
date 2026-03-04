@@ -705,6 +705,49 @@ tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
   display: inline-block;
 }
 
+/* --- Stats Bar --- */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--border);
+}
+
+.stat-card-open       { border-top-color: #ef4444; }
+.stat-card-inprogress { border-top-color: #f59e0b; }
+.stat-card-pending    { border-top-color: #6366f1; }
+
+.stat-card-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.stat-card-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* --- Ticket Count --- */
 .ticket-count {
   font-size: 0.85rem;

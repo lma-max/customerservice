@@ -96,6 +96,26 @@
       <button class="btn btn-secondary btn-sm" id="customer-history-btn">View History</button>
     </div>
 
+    <!-- Stats bar -->
+    <div class="stats-bar" id="stats-bar" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-card-value" id="stat-total">—</div>
+        <div class="stat-card-label">Total Tickets</div>
+      </div>
+      <div class="stat-card stat-card-open">
+        <div class="stat-card-value" id="stat-open">—</div>
+        <div class="stat-card-label">Open</div>
+      </div>
+      <div class="stat-card stat-card-inprogress">
+        <div class="stat-card-value" id="stat-inprogress">—</div>
+        <div class="stat-card-label">In Progress</div>
+      </div>
+      <div class="stat-card stat-card-pending">
+        <div class="stat-card-value" id="stat-pending">—</div>
+        <div class="stat-card-label">Pending Customer</div>
+      </div>
+    </div>
+
     <!-- Ticket count -->
     <div class="ticket-count" id="ticket-count"></div>
 
@@ -297,6 +317,11 @@
     const emptyState     = document.getElementById('empty-state');
     const tableWrapper   = document.getElementById('table-wrapper');
     const ticketCount    = document.getElementById('ticket-count');
+    const statsBar       = document.getElementById('stats-bar');
+    const statTotal      = document.getElementById('stat-total');
+    const statOpen       = document.getElementById('stat-open');
+    const statInProgress = document.getElementById('stat-inprogress');
+    const statPending    = document.getElementById('stat-pending');
     const flash          = document.getElementById('flash-message');
     const modalOverlay   = document.getElementById('modal-overlay');
     const modalTitle     = document.getElementById('modal-title');
@@ -332,11 +357,26 @@
             responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
           }));
         loadingState.style.display = 'none';
+        renderStats();
         renderTable();
       } catch (err) {
         loadingState.style.display = 'none';
         showFlash('Could not load tickets: ' + err.message, 'error');
       }
+    }
+
+    // --- Render stats (always based on full dataset) ---
+    function renderStats() {
+      const total      = allTicketsCache.length;
+      const open       = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
+      const inProgress = allTicketsCache.filter(t => t.responseStatus === 'In Progress').length;
+      const pending    = allTicketsCache.filter(t => t.responseStatus === 'Pending Customer').length;
+
+      statTotal.textContent      = total;
+      statOpen.textContent       = open;
+      statInProgress.textContent = inProgress;
+      statPending.textContent    = pending;
+      statsBar.style.display     = 'grid';
     }
 
     // --- Render table (reads from allTicketsCache) ---
