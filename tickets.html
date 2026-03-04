@@ -360,11 +360,17 @@
       agingLegend.style.display = 'none';
       ticketCount.textContent = '';
       try {
+        const knownStatuses = ['Open', 'In Progress', 'Pending Customer', 'Resolved', 'Closed'];
         allTicketsCache = (await getAllTickets())
-          .map(t => ({
-            ...t,
-            responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
-          }));
+          .map(t => {
+            let status = (t.responseStatus || '').trim();
+            if (status.toLowerCase() === 'yes') status = 'Resolved';
+            else {
+              const match = knownStatuses.find(s => s.toLowerCase() === status.toLowerCase());
+              if (match) status = match;
+            }
+            return { ...t, responseStatus: status };
+          });
         loadingState.style.display = 'none';
         renderStats();
         renderTable();
