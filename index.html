@@ -115,6 +115,15 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="">— None —</option>
+              <option>High Priority</option>
+              <option>Standard Escalation</option>
+            </select>
+          </div>
+
           <div class="form-group full-width">
             <label for="issue">Issue <span class="required">*</span></label>
             <textarea id="issue" name="issue" placeholder="Briefly describe the issue..." required></textarea>
@@ -202,7 +211,7 @@
       const fields = [
         'dateOfTicket','repName','channel','customerUsername',
         'orderNumber','orderDate','issueCategory','issue',
-        'responseStatus','lastContacted','resolutionType',
+        'responseStatus','priority','lastContacted','resolutionType',
         'notes','totalResolutionTime'
       ];
       fields.forEach(f => {

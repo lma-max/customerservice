@@ -65,6 +65,16 @@ function statusBadgeClass(status) {
   return map[status] || 'badge-closed';
 }
 
+/* --- Priority Badge Helper --- */
+
+function priorityBadgeClass(priority) {
+  const map = {
+    'High Priority':        'badge-priority-high',
+    'Standard Escalation':  'badge-priority-standard',
+  };
+  return map[priority] || 'badge-priority-none';
+}
+
 /* --- Date Formatting --- */
 
 function formatDate(dateStr) {

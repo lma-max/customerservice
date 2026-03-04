@@ -148,6 +148,7 @@
             <th>Customer</th>
             <th>Order #</th>
             <th>Category</th>
+            <th>Priority</th>
             <th>Status</th>
             <th>Last Contacted</th>
             <th style="min-width:160px;max-width:260px;">Notes</th>
@@ -246,6 +247,14 @@
                 <option>Pending Customer</option>
                 <option>Resolved</option>
                 <option>Closed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="edit-priority">Priority</label>
+              <select id="edit-priority">
+                <option value="">— None —</option>
+                <option>High Priority</option>
+                <option>Standard Escalation</option>
               </select>
             </div>
             <div class="form-group full-width">
@@ -442,6 +451,13 @@
             <td>${esc(t.orderNumber)}</td>
             <td>${esc(t.issueCategory)}</td>
             <td>
+              <select class="priority-select ${priorityBadgeClass(t.priority)}" onchange="handlePriorityChange('${esc(t.id)}', this)">
+                <option value=""${!t.priority ? ' selected' : ''}>— None —</option>
+                <option${'High Priority' === t.priority ? ' selected' : ''}>High Priority</option>
+                <option${'Standard Escalation' === t.priority ? ' selected' : ''}>Standard Escalation</option>
+              </select>
+            </td>
+            <td>
               <select class="status-select ${badgeClass}" onchange="handleStatusChange('${esc(t.id)}', this)">
                 <option${t.responseStatus === 'Open' ? ' selected' : ''}>Open</option>
                 <option${t.responseStatus === 'In Progress' ? ' selected' : ''}>In Progress</option>
@@ -619,6 +635,26 @@
       }
     }
 
+    // --- Inline Priority Update ---
+    async function handlePriorityChange(id, el) {
+      const newPriority = el.value;
+      const prevPriority = (allTicketsCache.find(t => t.id === id) || {}).priority;
+      el.disabled = true;
+      try {
+        await updateTicket(id, { priority: newPriority });
+        el.className = 'priority-select ' + priorityBadgeClass(newPriority);
+        const t = allTicketsCache.find(t => t.id === id);
+        if (t) t.priority = newPriority;
+        showFlash(`Ticket ${id} — priority updated to "${newPriority || 'None'}".`, 'success');
+      } catch (err) {
+        el.value = prevPriority || '';
+        el.className = 'priority-select ' + priorityBadgeClass(prevPriority || '');
+        showFlash('Failed to update priority: ' + err.message, 'error');
+      } finally {
+        el.disabled = false;
+      }
+    }
+
     // --- Edit Modal ---
     function openEditModal(id) {
       const t = allTicketsCache.find(ticket => ticket.id === id);
@@ -636,6 +672,7 @@
       setVal('edit-issueCategory', t.issueCategory);
       setVal('edit-issue', t.issue);
       setVal('edit-responseStatus', t.responseStatus);
+      setVal('edit-priority', t.priority || '');
       setVal('edit-lastContacted', dateOnly(t.lastContacted));
       setVal('edit-resolutionType', t.resolutionType || '');
       setVal('edit-totalResolutionTime', t.totalResolutionTime || '');
@@ -714,6 +751,7 @@
         issueCategory:       document.getElementById('edit-issueCategory').value,
         issue:               document.getElementById('edit-issue').value.trim(),
         responseStatus:      document.getElementById('edit-responseStatus').value,
+        priority:            document.getElementById('edit-priority').value,
         lastContacted:       document.getElementById('edit-lastContacted').value.trim(),
         resolutionType:      document.getElementById('edit-resolutionType').value,
         totalResolutionTime: document.getElementById('edit-totalResolutionTime').value.trim(),

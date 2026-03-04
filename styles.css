@@ -563,6 +563,25 @@ tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
   box-shadow: 0 0 0 2px rgba(13,138,124,0.3);
 }
 
+/* --- Inline Priority Select --- */
+.priority-select {
+  border: none;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px 3px 8px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.priority-select:hover { opacity: 0.8; }
+.priority-select:focus { outline: none; box-shadow: 0 0 0 2px rgba(13,138,124,0.3); }
+
+.badge-priority-high     { background: #fee2e2; color: #991b1b; }
+.badge-priority-standard { background: #dbeafe; color: #1d4ed8; }
+.badge-priority-none     { background: #f3f4f6; color: #6b7280; }
+
 /* --- Filters Bar --- */
 .filters-bar {
   background: var(--white);
