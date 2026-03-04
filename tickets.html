@@ -382,6 +382,7 @@
 
     // --- Render stats (always based on full dataset) ---
     function renderStats() {
+      console.log('[Stats] responseStatus values:', allTicketsCache.map(t => t.responseStatus));
       const total      = allTicketsCache.length;
       const open       = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
       const inProgress = allTicketsCache.filter(t => t.responseStatus === 'In Progress').length;
