@@ -30,6 +30,30 @@
       <p class="page-subtitle">View, filter, and manage all submitted customer inquiry tickets.</p>
     </div>
 
+    <!-- Stats summary -->
+    <div class="ticket-stats" id="ticket-stats" style="display:none;">
+      <div class="customer-stat">
+        <div class="customer-stat-value" id="stat-total">—</div>
+        <div class="customer-stat-label">Total Tickets</div>
+      </div>
+      <div class="customer-stat">
+        <div class="customer-stat-value" id="stat-open">—</div>
+        <div class="customer-stat-label">Open</div>
+      </div>
+      <div class="customer-stat">
+        <div class="customer-stat-value" id="stat-inprogress">—</div>
+        <div class="customer-stat-label">In Progress</div>
+      </div>
+      <div class="customer-stat">
+        <div class="customer-stat-value" id="stat-pending">—</div>
+        <div class="customer-stat-label">Pending Customer</div>
+      </div>
+      <div class="customer-stat">
+        <div class="customer-stat-value" id="stat-resolved">—</div>
+        <div class="customer-stat-label">Resolved / Closed</div>
+      </div>
+    </div>
+
     <!-- Flash message -->
     <div id="flash-message" class="alert" style="display:none;"></div>
 
@@ -333,6 +357,7 @@
     const modalTitle     = document.getElementById('modal-title');
     const loadingState   = document.getElementById('loading-state');
     const agingLegend    = document.getElementById('aging-legend');
+    const ticketStats    = document.getElementById('ticket-stats');
 
     const searchInput     = document.getElementById('search');
     const statusFilter    = document.getElementById('filter-status');
@@ -340,6 +365,21 @@
     const channelFilter   = document.getElementById('filter-channel');
     const sortSelect      = document.getElementById('sort-by');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+    // --- Stats bar ---
+    function updateStats() {
+      const total      = allTicketsCache.length;
+      const open       = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
+      const inProgress = allTicketsCache.filter(t => t.responseStatus === 'In Progress').length;
+      const pending    = allTicketsCache.filter(t => t.responseStatus === 'Pending Customer').length;
+      const resolved   = allTicketsCache.filter(t => t.responseStatus === 'Resolved' || t.responseStatus === 'Closed').length;
+      document.getElementById('stat-total').textContent      = total;
+      document.getElementById('stat-open').textContent       = open;
+      document.getElementById('stat-inprogress').textContent = inProgress;
+      document.getElementById('stat-pending').textContent    = pending;
+      document.getElementById('stat-resolved').textContent   = resolved;
+      ticketStats.style.display = total > 0 ? 'grid' : 'none';
+    }
 
     // --- Flash ---
     function showFlash(msg, type = 'success') {
@@ -363,6 +403,7 @@
             responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
           }));
         loadingState.style.display = 'none';
+        updateStats();
         renderTable();
       } catch (err) {
         loadingState.style.display = 'none';
