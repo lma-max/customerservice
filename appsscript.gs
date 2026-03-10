@@ -34,6 +34,7 @@ function doPost(e) {
     if (body.action === 'update')          return respond(updateTicket(body.id, body.updates));
     if (body.action === 'delete')          return respond(deleteTicket(body.id));
     if (body.action === 'importFromSheet') return respond(importFromSheet(body.sheetId, body.sheetName || ''));
+    if (body.action === 'clearAll')        return respond(clearAllTickets());
     return respond({ error: 'Unknown POST action: ' + body.action });
   } catch (err) {
     return respond({ error: err.message });
@@ -203,6 +204,15 @@ function importFromSheet(sheetId, sheetName) {
   }
 
   return { imported: importedCount };
+}
+
+function clearAllTickets() {
+  const sheet = getSheet();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { cleared: 0 };
+  const count = lastRow - 1;
+  sheet.deleteRows(2, count);
+  return { cleared: count };
 }
 
 function deleteTicket(id) {

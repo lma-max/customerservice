@@ -86,6 +86,7 @@
         <div class="filters-actions">
           <button class="btn btn-secondary btn-sm" id="clear-filters-btn">Reset</button>
           <button class="btn btn-secondary btn-sm" id="import-sheet-btn">Import from Old Sheet</button>
+          <button class="btn btn-danger btn-sm" id="clear-all-btn">Clear All Tickets</button>
         </div>
       </div>
     </div>
@@ -832,6 +833,28 @@
       } finally {
         runBtn.disabled = false;
         runBtn.textContent = 'Start Import';
+      }
+    });
+
+    // --- Clear All Tickets ---
+    document.getElementById('clear-all-btn').addEventListener('click', async function() {
+      const confirmed = confirm(
+        'This will permanently delete ALL tickets from the sheet.\n\nThis cannot be undone. Are you sure?'
+      );
+      if (!confirmed) return;
+
+      const btn = document.getElementById('clear-all-btn');
+      btn.disabled = true;
+      btn.textContent = 'Clearing…';
+      try {
+        const result = await clearAllTickets();
+        await loadTickets();
+        showFlash(`Cleared ${result.cleared} ticket${result.cleared !== 1 ? 's' : ''}. The sheet is now empty.`, 'success');
+      } catch (err) {
+        showFlash('Failed to clear tickets: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Clear All Tickets';
       }
     });
 

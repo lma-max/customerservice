@@ -53,6 +53,19 @@ async function importTicketsFromSheet(sheetId, sheetName) {
   return data;
 }
 
+async function clearAllTickets() {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'clearAll' }),
+  });
+  if (!res.ok) throw new Error(`Server error (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
 async function deleteTicket(id) {
   const res = await fetch(API_URL, {
     method: 'POST',
