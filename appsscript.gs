@@ -135,6 +135,7 @@ const OLD_COLUMN_MAP = {
   'customer rep':      'repName',
   'channel':           'channel',
   'customer username': 'customerUsername',
+  'date of ticket':    'dateOfTicket',
   'issue':             'issue',
   'response status':   'responseStatus',
   'last contacted':    'lastContacted',
