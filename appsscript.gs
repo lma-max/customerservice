@@ -26,13 +26,14 @@ function doGet(e) {
   }
 }
 
-// ── Handle POST requests (create / update / delete) ───────────────────────────
+// ── Handle POST requests (create / update / delete / import) ──────────────────
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
-    if (body.action === 'add')    return respond(addTicket(body.ticket));
-    if (body.action === 'update') return respond(updateTicket(body.id, body.updates));
-    if (body.action === 'delete') return respond(deleteTicket(body.id));
+    if (body.action === 'add')             return respond(addTicket(body.ticket));
+    if (body.action === 'update')          return respond(updateTicket(body.id, body.updates));
+    if (body.action === 'delete')          return respond(deleteTicket(body.id));
+    if (body.action === 'importFromSheet') return respond(importFromSheet(body.sheetId, body.sheetName || ''));
     return respond({ error: 'Unknown POST action: ' + body.action });
   } catch (err) {
     return respond({ error: err.message });
@@ -121,6 +122,87 @@ function updateTicket(id, updates) {
     }
   }
   return { error: 'Ticket not found' };
+}
+
+// ── Import from old Google Sheet ──────────────────────────────────────────────
+// Old sheet columns (case-insensitive) mapped to new ticket fields:
+//   Customer Rep → repName, Channel → channel, Customer Username → customerUsername,
+//   Issue → issue, Response Status → responseStatus, Last contacted → lastContacted,
+//   Issue category → issueCategory, Resolved → resolutionType, Notes → notes
+
+const OLD_COLUMN_MAP = {
+  'customer rep':      'repName',
+  'channel':           'channel',
+  'customer username': 'customerUsername',
+  'issue':             'issue',
+  'response status':   'responseStatus',
+  'last contacted':    'lastContacted',
+  'issue category':    'issueCategory',
+  'resolved':          'resolutionType',
+  'notes':             'notes',
+};
+
+function importFromSheet(sheetId, sheetName) {
+  let ss;
+  try {
+    ss = SpreadsheetApp.openById(sheetId);
+  } catch (e) {
+    return { error: 'Could not open spreadsheet. Make sure the Sheet ID is correct and the sheet is shared with your Google account.' };
+  }
+
+  const sourceSheet = sheetName ? ss.getSheetByName(sheetName) : ss.getSheets()[0];
+  if (!sourceSheet) return { error: 'Tab "' + sheetName + '" not found in the spreadsheet.' };
+
+  const lastRow = sourceSheet.getLastRow();
+  if (lastRow < 2) return { imported: 0 };
+
+  const allData = sourceSheet.getDataRange().getValues();
+  const headers = allData[0].map(h => String(h).trim().toLowerCase());
+
+  // Build index map: field name → column index in source sheet
+  const fieldIndex = {};
+  headers.forEach((h, i) => {
+    const field = OLD_COLUMN_MAP[h];
+    if (field) fieldIndex[field] = i;
+  });
+
+  const targetSheet = getSheet();
+  const now = new Date().toISOString();
+  let importedCount = 0;
+
+  for (let r = 1; r < allData.length; r++) {
+    const row = allData[r];
+    if (row.every(cell => cell === '' || cell === null || cell === undefined)) continue;
+
+    const ticket = {
+      dateOfTicket: '', orderNumber: '', orderDate: '', totalResolutionTime: '',
+    };
+
+    Object.entries(fieldIndex).forEach(([field, idx]) => {
+      const val = row[idx];
+      if (val instanceof Date) {
+        ticket[field] = Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      } else {
+        ticket[field] = (val !== undefined && val !== null) ? String(val) : '';
+      }
+    });
+
+    // Normalize legacy "Yes"/"No" in responseStatus
+    if (ticket.responseStatus && ticket.responseStatus.toLowerCase() === 'yes') {
+      ticket.responseStatus = 'Resolved';
+    }
+
+    const fullTicket = Object.assign(ticket, {
+      id:        nextId(targetSheet),
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    targetSheet.appendRow(objToRow(fullTicket));
+    importedCount++;
+  }
+
+  return { imported: importedCount };
 }
 
 function deleteTicket(id) {
