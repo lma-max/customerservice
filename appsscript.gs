@@ -10,7 +10,7 @@ const SHEET_NAME = 'Tickets';
 // Column order must match the header row you created in the sheet exactly.
 const COLUMNS = [
   'id', 'createdAt', 'updatedAt', 'dateOfTicket', 'repName',
-  'channel', 'customerUsername', 'orderNumber', 'orderDate',
+  'channel', 'customerUsername', 'priority', 'orderNumber', 'orderDate',
   'issueCategory', 'issue', 'responseStatus', 'lastContacted',
   'resolutionType', 'totalResolutionTime', 'notes'
 ];

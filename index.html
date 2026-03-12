@@ -71,6 +71,15 @@
             <input type="text" id="customerUsername" name="customerUsername" placeholder="e.g. johndoe92" />
           </div>
 
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="">— Select priority —</option>
+              <option>Standard</option>
+              <option>High Priority</option>
+            </select>
+          </div>
+
         </div>
 
         <hr class="section-divider" />
@@ -200,7 +209,7 @@
     function getFormData() {
       const data = {};
       const fields = [
-        'dateOfTicket','repName','channel','customerUsername',
+        'dateOfTicket','repName','channel','customerUsername','priority',
         'orderNumber','orderDate','issueCategory','issue',
         'responseStatus','lastContacted','resolutionType',
         'notes','totalResolutionTime'

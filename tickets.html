@@ -142,6 +142,7 @@
             <th>Customer</th>
             <th>Order #</th>
             <th>Category</th>
+            <th>Priority</th>
             <th>Status</th>
             <th>Last Contacted</th>
             <th style="min-width:160px;max-width:260px;">Notes</th>
@@ -204,6 +205,14 @@
             <div class="form-group">
               <label for="edit-customerUsername">Customer Username <span class="required">*</span></label>
               <input type="text" id="edit-customerUsername" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-priority">Priority</label>
+              <select id="edit-priority">
+                <option value="">— Select priority —</option>
+                <option>Standard</option>
+                <option>High Priority</option>
+              </select>
             </div>
           </div>
 
@@ -454,6 +463,7 @@
             <td><button class="customer-link" data-username="${esc(t.customerUsername)}">${esc(t.customerUsername)}</button></td>
             <td>${esc(t.orderNumber)}</td>
             <td>${esc(t.issueCategory)}</td>
+            <td>${t.priority === 'High Priority' ? `<span class="badge badge-highpriority">${esc(t.priority)}</span>` : esc(t.priority || '—')}</td>
             <td>
               <select class="status-select ${badgeClass}" onchange="handleStatusChange('${esc(t.id)}', this)">
                 <option${t.responseStatus === 'Open' ? ' selected' : ''}>Open</option>
@@ -651,6 +661,7 @@
       setVal('edit-issue', t.issue);
       setVal('edit-responseStatus', t.responseStatus);
       setVal('edit-lastContacted', dateOnly(t.lastContacted));
+      setVal('edit-priority', t.priority || '');
       setVal('edit-resolutionType', t.resolutionType || '');
       setVal('edit-totalResolutionTime', t.totalResolutionTime || '');
       setVal('edit-notes', t.notes);
@@ -729,6 +740,7 @@
         issue:               document.getElementById('edit-issue').value.trim(),
         responseStatus:      document.getElementById('edit-responseStatus').value,
         lastContacted:       document.getElementById('edit-lastContacted').value.trim(),
+        priority:            document.getElementById('edit-priority').value,
         resolutionType:      document.getElementById('edit-resolutionType').value,
         totalResolutionTime: document.getElementById('edit-totalResolutionTime').value.trim(),
         notes:               document.getElementById('edit-notes').value.trim(),
