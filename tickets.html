@@ -106,6 +106,7 @@
       <span class="customer-history-label">Customer History:</span>
       <input type="text" id="customer-history-input" placeholder="Enter a username to view their full history…" />
       <button class="btn btn-secondary btn-sm" id="customer-history-btn">View History</button>
+      <button class="btn btn-secondary btn-sm" id="import-sheet-btn" style="margin-left:auto;">Import from Old Sheet</button>
     </div>
 
     <!-- Ticket count -->
@@ -298,6 +299,35 @@
     </div>
   </div>
 
+  <!-- Import from Old Sheet Modal -->
+  <div class="modal-overlay hidden" id="import-modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+      <div class="modal-header">
+        <span class="modal-title" id="import-modal-title">Import from Old Sheet</span>
+        <button class="modal-close" id="import-modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 16px;font-size:0.9rem;color:#6b7280;">
+          Paste the Google Sheet ID or full URL of the old sheet. The following columns will be imported:
+          <strong>Customer Rep, Channel, Customer Username, Issue, Response Status, Last Contacted, Issue Category, Resolved, Notes</strong>.
+        </p>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="import-sheet-id">Google Sheet ID or URL <span class="required">*</span></label>
+          <input type="text" id="import-sheet-id" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms or full URL" />
+        </div>
+        <div class="form-group">
+          <label for="import-sheet-name">Tab Name <span style="color:#9ca3af;font-weight:400;">(optional — defaults to first tab)</span></label>
+          <input type="text" id="import-sheet-name" placeholder="e.g. Sheet1" />
+        </div>
+        <div id="import-result" style="display:none;margin-top:14px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="import-modal-cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="import-modal-run-btn">Start Import</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script>
     // --- State ---
@@ -354,7 +384,7 @@
     // --- Stats bar ---
     function renderStats() {
       const today = new Date().toISOString().split('T')[0];
-      const todayCount = allTicketsCache.filter(t => dateOnly(t.dateOfTicket) === today).length;
+      const todayCount = allTicketsCache.filter(t => (dateOnly(t.dateOfTicket) || dateOnly(t.createdAt)) === today).length;
       const openCount  = allTicketsCache.filter(t => (t.responseStatus || '').toLowerCase() === 'open').length;
       document.getElementById('stat-today').textContent = todayCount;
       document.getElementById('stat-open').textContent  = openCount;
@@ -742,6 +772,75 @@
     tbody.addEventListener('click', function(e) {
       const btn = e.target.closest('.customer-link');
       if (btn) openCustomerModal(btn.dataset.username);
+    });
+
+    // --- Import from Old Sheet ---
+    const importModalOverlay = document.getElementById('import-modal-overlay');
+
+    function openImportModal() {
+      document.getElementById('import-sheet-id').value = '';
+      document.getElementById('import-sheet-name').value = '';
+      document.getElementById('import-result').style.display = 'none';
+      document.getElementById('import-modal-run-btn').disabled = false;
+      document.getElementById('import-modal-run-btn').textContent = 'Start Import';
+      importModalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('import-sheet-id').focus();
+    }
+
+    function closeImportModal() {
+      importModalOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function extractSheetId(input) {
+      const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      return match ? match[1] : input.trim();
+    }
+
+    document.getElementById('import-sheet-btn').addEventListener('click', openImportModal);
+    document.getElementById('import-modal-close-btn').addEventListener('click', closeImportModal);
+    document.getElementById('import-modal-cancel-btn').addEventListener('click', closeImportModal);
+    importModalOverlay.addEventListener('click', function(e) {
+      if (e.target === importModalOverlay) closeImportModal();
+    });
+
+    document.getElementById('import-modal-run-btn').addEventListener('click', async function() {
+      const rawInput = document.getElementById('import-sheet-id').value.trim();
+      if (!rawInput) {
+        alert('Please enter a Google Sheet ID or URL.');
+        document.getElementById('import-sheet-id').focus();
+        return;
+      }
+      const sheetId = extractSheetId(rawInput);
+      const sheetName = document.getElementById('import-sheet-name').value.trim();
+
+      const runBtn = document.getElementById('import-modal-run-btn');
+      const resultDiv = document.getElementById('import-result');
+      runBtn.disabled = true;
+      runBtn.textContent = 'Importing…';
+      resultDiv.style.display = 'none';
+
+      try {
+        const result = await importTicketsFromSheet(sheetId, sheetName);
+        const count = result.imported || 0;
+        resultDiv.className = 'alert alert-success';
+        resultDiv.textContent = count > 0
+          ? `Successfully imported ${count} ticket${count !== 1 ? 's' : ''}.`
+          : 'No rows found to import.';
+        resultDiv.style.display = 'flex';
+        if (count > 0) {
+          await loadTickets();
+          showFlash(`Imported ${count} ticket${count !== 1 ? 's' : ''} from old sheet.`, 'success');
+        }
+      } catch (err) {
+        resultDiv.className = 'alert alert-error';
+        resultDiv.textContent = 'Import failed: ' + err.message;
+        resultDiv.style.display = 'flex';
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = 'Start Import';
+      }
     });
 
     // --- Filters ---
