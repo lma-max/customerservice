@@ -354,8 +354,8 @@
     // --- Stats bar ---
     function renderStats() {
       const today = new Date().toISOString().split('T')[0];
-      const todayCount = allTicketsCache.filter(t => (t.dateOfTicket || '').startsWith(today)).length;
-      const openCount  = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
+      const todayCount = allTicketsCache.filter(t => dateOnly(t.dateOfTicket) === today).length;
+      const openCount  = allTicketsCache.filter(t => (t.responseStatus || '').toLowerCase() === 'open').length;
       document.getElementById('stat-today').textContent = todayCount;
       document.getElementById('stat-open').textContent  = openCount;
     }
