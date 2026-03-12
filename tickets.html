@@ -107,6 +107,7 @@
       <input type="text" id="customer-history-input" placeholder="Enter a username to view their full history…" />
       <button class="btn btn-secondary btn-sm" id="customer-history-btn">View History</button>
       <button class="btn btn-secondary btn-sm" id="import-sheet-btn" style="margin-left:auto;">Import from Old Sheet</button>
+      <button class="btn btn-danger btn-sm" id="clear-all-btn">Clear All Tickets</button>
     </div>
 
     <!-- Ticket count -->
@@ -840,6 +841,24 @@
       } finally {
         runBtn.disabled = false;
         runBtn.textContent = 'Start Import';
+      }
+    });
+
+    // --- Clear All Tickets ---
+    document.getElementById('clear-all-btn').addEventListener('click', async function() {
+      if (!confirm('This will permanently delete ALL tickets. This cannot be undone. Are you sure?')) return;
+      const btn = document.getElementById('clear-all-btn');
+      btn.disabled = true;
+      btn.textContent = 'Clearing…';
+      try {
+        const result = await clearAllTickets();
+        await loadTickets();
+        showFlash(`Cleared ${result.cleared} ticket${result.cleared !== 1 ? 's' : ''}.`, 'success');
+      } catch (err) {
+        showFlash('Failed to clear tickets: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Clear All Tickets';
       }
     });
 
