@@ -33,6 +33,18 @@
     <!-- Flash message -->
     <div id="flash-message" class="alert" style="display:none;"></div>
 
+    <!-- Stats Bar -->
+    <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 24px;min-width:160px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="font-size:0.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Today's Tickets</div>
+        <div id="stat-today" style="font-size:2rem;font-weight:700;color:#111827;line-height:1;">—</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 24px;min-width:160px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="font-size:0.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Open Tickets</div>
+        <div id="stat-open" style="font-size:2rem;font-weight:700;color:#dc2626;line-height:1;">—</div>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="filters-bar">
       <div class="filters-row">
@@ -339,6 +351,15 @@
       }
     }
 
+    // --- Stats bar ---
+    function renderStats() {
+      const today = new Date().toISOString().split('T')[0];
+      const todayCount = allTicketsCache.filter(t => (t.dateOfTicket || '').startsWith(today)).length;
+      const openCount  = allTicketsCache.filter(t => t.responseStatus === 'Open').length;
+      document.getElementById('stat-today').textContent = todayCount;
+      document.getElementById('stat-open').textContent  = openCount;
+    }
+
     // --- Render table (reads from allTicketsCache) ---
     function getFilteredSortedTickets() {
       let tickets = [...allTicketsCache];
@@ -374,6 +395,7 @@
     }
 
     function renderTable() {
+      renderStats();
       const tickets = getFilteredSortedTickets();
 
       if (tickets.length === 0) {
@@ -569,6 +591,7 @@
         el.className = 'status-select ' + statusBadgeClass(newStatus);
         const t = allTicketsCache.find(t => t.id === id);
         if (t) t.responseStatus = newStatus;
+        renderStats();
         showFlash(`Ticket ${id} — status updated to "${newStatus}".`, 'success');
       } catch (err) {
         el.value = prevStatus || newStatus;

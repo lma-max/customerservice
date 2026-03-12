@@ -41,13 +41,13 @@
         <div class="form-grid">
 
           <div class="form-group">
-            <label for="dateOfTicket">Date of Ticket <span class="required">*</span></label>
-            <input type="date" id="dateOfTicket" name="dateOfTicket" required />
+            <label for="dateOfTicket">Date of Ticket</label>
+            <input type="date" id="dateOfTicket" name="dateOfTicket" />
           </div>
 
           <div class="form-group">
-            <label for="repName">CS Rep Name <span class="required">*</span></label>
-            <select id="repName" name="repName" required>
+            <label for="repName">CS Rep Name</label>
+            <select id="repName" name="repName">
               <option value="">— Select rep —</option>
               <option>kamal</option>
               <option>mikki</option>
@@ -56,8 +56,8 @@
           </div>
 
           <div class="form-group">
-            <label for="channel">Channel <span class="required">*</span></label>
-            <select id="channel" name="channel" required>
+            <label for="channel">Channel</label>
+            <select id="channel" name="channel">
               <option value="">— Select channel —</option>
               <option>GC Main</option>
               <option>GC Modern</option>
@@ -67,8 +67,8 @@
           </div>
 
           <div class="form-group">
-            <label for="customerUsername">Customer Username <span class="required">*</span></label>
-            <input type="text" id="customerUsername" name="customerUsername" placeholder="e.g. johndoe92" required />
+            <label for="customerUsername">Customer Username</label>
+            <input type="text" id="customerUsername" name="customerUsername" placeholder="e.g. johndoe92" />
           </div>
 
         </div>
@@ -80,18 +80,18 @@
         <div class="form-grid">
 
           <div class="form-group">
-            <label for="orderNumber">Order # <span class="required">*</span></label>
-            <input type="text" id="orderNumber" name="orderNumber" placeholder="e.g. 1234567" required />
+            <label for="orderNumber">Order #</label>
+            <input type="text" id="orderNumber" name="orderNumber" placeholder="e.g. 1234567" />
           </div>
 
           <div class="form-group">
-            <label for="orderDate">Order Date <span class="required">*</span></label>
-            <input type="date" id="orderDate" name="orderDate" required />
+            <label for="orderDate">Order Date</label>
+            <input type="date" id="orderDate" name="orderDate" />
           </div>
 
           <div class="form-group">
-            <label for="issueCategory">Issue Category <span class="required">*</span></label>
-            <select id="issueCategory" name="issueCategory" required>
+            <label for="issueCategory">Issue Category</label>
+            <select id="issueCategory" name="issueCategory">
               <option value="">— Select category —</option>
               <option>Shipping Issue</option>
               <option>Wrong Item</option>
@@ -104,8 +104,8 @@
           </div>
 
           <div class="form-group">
-            <label for="responseStatus">Response Status <span class="required">*</span></label>
-            <select id="responseStatus" name="responseStatus" required>
+            <label for="responseStatus">Response Status</label>
+            <select id="responseStatus" name="responseStatus">
               <option value="">— Select status —</option>
               <option selected>Open</option>
               <option>In Progress</option>
@@ -116,8 +116,8 @@
           </div>
 
           <div class="form-group full-width">
-            <label for="issue">Issue <span class="required">*</span></label>
-            <textarea id="issue" name="issue" placeholder="Briefly describe the issue..." required></textarea>
+            <label for="issue">Issue</label>
+            <textarea id="issue" name="issue" placeholder="Briefly describe the issue..."></textarea>
           </div>
 
         </div>
@@ -129,8 +129,8 @@
         <div class="form-grid">
 
           <div class="form-group">
-            <label for="lastContacted">Last Contacted <span class="required">*</span></label>
-            <input type="date" id="lastContacted" name="lastContacted" required />
+            <label for="lastContacted">Last Contacted</label>
+            <input type="date" id="lastContacted" name="lastContacted" />
           </div>
 
           <div class="form-group">
@@ -153,9 +153,9 @@
           </div>
 
           <div class="form-group full-width">
-            <label for="notes">Notes <span class="required">*</span></label>
+            <label for="notes">Notes</label>
             <textarea id="notes" name="notes" rows="4"
-              placeholder="Add a dated note, e.g. '03/02/2026 — Customer replied, awaiting return label'" required></textarea>
+              placeholder="Add a dated note, e.g. '03/02/2026 — Customer replied, awaiting return label'"></textarea>
             <span class="form-hint">Always add new entries at the top with today's date.</span>
           </div>
 
@@ -212,18 +212,6 @@
     }
 
     function validateForm(data) {
-      const required = [
-        'dateOfTicket','repName','channel','customerUsername',
-        'orderNumber','orderDate','issueCategory','issue',
-        'responseStatus','lastContacted','notes'
-      ];
-      for (const field of required) {
-        if (!data[field]) {
-          const label = document.querySelector(`label[for="${field}"]`);
-          const labelText = label ? label.textContent.replace('*','').trim() : field;
-          return `"${labelText}" is required.`;
-        }
-      }
       return null;
     }
 
