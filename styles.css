@@ -379,6 +379,13 @@ tbody td .customer-link {
   white-space: nowrap;
 }
 
+/* Date, Rep, Last Contacted columns stay on one line */
+#tickets-table tbody td:nth-child(2),
+#tickets-table tbody td:nth-child(3),
+#tickets-table tbody td:nth-child(9) {
+  white-space: nowrap;
+}
+
 /* --- Status Badges --- */
 .badge {
   display: inline-block;
