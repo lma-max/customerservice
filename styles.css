@@ -368,6 +368,14 @@ tbody tr:hover {
 tbody td {
   padding: 10px 14px;
   vertical-align: middle;
+  white-space: normal;
+  word-break: break-word;
+}
+
+tbody td code,
+tbody td .badge,
+tbody td .action-btn,
+tbody td .customer-link {
   white-space: nowrap;
 }
 
