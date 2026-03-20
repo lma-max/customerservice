@@ -147,6 +147,12 @@
           </div>
 
           <div class="form-group">
+            <label for="firstResponseTime">First Response Time</label>
+            <input type="text" id="firstResponseTime" name="firstResponseTime" placeholder='e.g. "2 hours", "1 day"' />
+            <span class="form-hint">Optional — time until first reply to customer.</span>
+          </div>
+
+          <div class="form-group">
             <label for="totalResolutionTime">Total Resolution Time</label>
             <input type="text" id="totalResolutionTime" name="totalResolutionTime" placeholder='e.g. "3 days", "1 week"' />
             <span class="form-hint">Optional — fill in when resolved.</span>
@@ -203,7 +209,7 @@
         'dateOfTicket','repName','channel','customerUsername',
         'orderNumber','orderDate','issueCategory','issue',
         'responseStatus','lastContacted','resolutionType',
-        'notes','totalResolutionTime'
+        'notes','totalResolutionTime','firstResponseTime'
       ];
       fields.forEach(f => {
         data[f] = document.getElementById(f).value.trim();
