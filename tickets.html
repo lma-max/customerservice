@@ -99,6 +99,13 @@
             <option value="contacted-asc">Last Contacted — Oldest</option>
           </select>
         </div>
+        <div class="filter-group filter-new-update">
+          <label>&nbsp;</label>
+          <label class="filter-toggle-label">
+            <input type="checkbox" id="filter-new-update" />
+            <span>New Updates Only</span>
+          </label>
+        </div>
         <div class="filters-actions">
           <button class="btn btn-secondary btn-sm" id="clear-filters-btn">Reset</button>
         </div>
@@ -339,6 +346,7 @@
     const channelFilter   = document.getElementById('filter-channel');
     const sortSelect      = document.getElementById('sort-by');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const newUpdateFilter = document.getElementById('filter-new-update');
 
     // --- Flash ---
     function showFlash(msg, type = 'success') {
@@ -390,6 +398,10 @@
 
       const ch = channelFilter.value;
       if (ch) tickets = tickets.filter(t => t.channel === ch);
+
+      if (newUpdateFilter.checked) {
+        tickets = tickets.filter(t => t.newUpdate === 'true' || t.newUpdate === true);
+      }
 
       const sort = sortSelect.value;
       tickets.sort((a, b) => {
@@ -773,6 +785,7 @@
       el.addEventListener('input', renderTable);
       el.addEventListener('change', renderTable);
     });
+    newUpdateFilter.addEventListener('change', renderTable);
 
     clearFiltersBtn.addEventListener('click', function() {
       searchInput.value = '';
@@ -780,6 +793,7 @@
       categoryFilter.value = '';
       channelFilter.value = '';
       sortSelect.value = 'date-desc';
+      newUpdateFilter.checked = false;
       renderTable();
     });
 
