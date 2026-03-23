@@ -368,6 +368,7 @@
           .map(t => ({
             ...t,
             responseStatus: (t.responseStatus || '').toLowerCase() === 'yes' ? 'Resolved' : t.responseStatus,
+            newUpdate: String(t.newUpdate).toLowerCase() === 'true',
           }));
         loadingState.style.display = 'none';
         renderTable();
@@ -400,7 +401,7 @@
       if (ch) tickets = tickets.filter(t => t.channel === ch);
 
       if (newUpdateFilter.checked) {
-        tickets = tickets.filter(t => t.newUpdate === 'true' || t.newUpdate === true);
+        tickets = tickets.filter(t => t.newUpdate === true);
       }
 
       const sort = sortSelect.value;
@@ -447,7 +448,7 @@
       tbody.innerHTML = tickets.map(t => {
         const badgeClass = statusBadgeClass(t.responseStatus);
         const ageClass = agingClass(t);
-        const isNewUpdate = t.newUpdate === 'true' || t.newUpdate === true;
+        const isNewUpdate = t.newUpdate === true;
         const rowClasses = [ageClass, isNewUpdate ? 'row-new-update' : ''].filter(Boolean).join(' ');
         return `
           <tr${rowClasses ? ` class="${rowClasses}"` : ''}>
@@ -657,7 +658,7 @@
       setVal('edit-resolutionType', t.resolutionType || '');
       setVal('edit-totalResolutionTime', t.totalResolutionTime || '');
       setVal('edit-notes', t.notes);
-      document.getElementById('edit-newUpdate').checked = (t.newUpdate === 'true' || t.newUpdate === true);
+      document.getElementById('edit-newUpdate').checked = t.newUpdate === true;
       modalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
