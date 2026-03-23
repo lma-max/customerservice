@@ -314,6 +314,16 @@ textarea {
 }
 
 /* --- Tables --- */
+.scroll-mirror {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 16px;
+  margin-bottom: 2px;
+}
+.scroll-mirror-inner {
+  height: 1px;
+}
+
 .table-wrapper {
   overflow-x: auto;
   border-radius: var(--radius-lg);

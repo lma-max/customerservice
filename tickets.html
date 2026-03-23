@@ -116,6 +116,9 @@
       </div>
     </div>
 
+    <!-- Mirror scrollbar (top) -->
+    <div class="scroll-mirror" id="scroll-mirror"><div class="scroll-mirror-inner" id="scroll-mirror-inner"></div></div>
+
     <!-- Table -->
     <div class="table-wrapper" id="table-wrapper">
       <table id="tickets-table">
@@ -738,6 +741,31 @@
 
     // --- Init ---
     loadTickets();
+
+    // --- Mirror top scrollbar ---
+    (function() {
+      const mirror = document.getElementById('scroll-mirror');
+      const mirrorInner = document.getElementById('scroll-mirror-inner');
+      const wrapper = document.getElementById('table-wrapper');
+
+      function syncMirrorWidth() {
+        const table = document.getElementById('tickets-table');
+        mirrorInner.style.width = (table ? table.scrollWidth : wrapper.scrollWidth) + 'px';
+      }
+
+      mirror.addEventListener('scroll', function() {
+        if (wrapper.scrollLeft !== mirror.scrollLeft) wrapper.scrollLeft = mirror.scrollLeft;
+      });
+      wrapper.addEventListener('scroll', function() {
+        if (mirror.scrollLeft !== wrapper.scrollLeft) mirror.scrollLeft = wrapper.scrollLeft;
+      });
+
+      // Update mirror width after table renders
+      const observer = new MutationObserver(syncMirrorWidth);
+      observer.observe(document.getElementById('tickets-tbody'), { childList: true, subtree: false });
+      syncMirrorWidth();
+      window.addEventListener('resize', syncMirrorWidth);
+    })();
   </script>
 
 </body>
