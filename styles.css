@@ -314,6 +314,14 @@ textarea {
 }
 
 /* --- Tables --- */
+/* Order # column: wrap text to keep column narrow */
+#tickets-table td:nth-child(6),
+#tickets-table th:nth-child(6) {
+  max-width: 90px;
+  white-space: normal;
+  word-break: break-word;
+}
+
 .scroll-mirror {
   overflow-x: auto;
   overflow-y: hidden;
