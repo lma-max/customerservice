@@ -43,6 +43,10 @@
         <div class="stat-value" id="stat-today">—</div>
         <div class="stat-label">Opened Today</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-aging">—</div>
+        <div class="stat-label">Aging (2+ Days)</div>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -398,6 +402,11 @@
         allTicketsCache.filter(t => openStatuses.includes(t.responseStatus)).length;
       document.getElementById('stat-today').textContent =
         allTicketsCache.filter(t => t.dateOfTicket === today).length;
+      document.getElementById('stat-aging').textContent =
+        allTicketsCache.filter(t =>
+          !['Resolved', 'Closed'].includes(t.responseStatus) &&
+          (ticketAgeDays(t.dateOfTicket) ?? 0) > 2
+        ).length;
 
       if (tickets.length === 0) {
         tableWrapper.style.display = 'none';
