@@ -12,7 +12,7 @@ const COLUMNS = [
   'id', 'createdAt', 'updatedAt', 'dateOfTicket', 'repName',
   'channel', 'customerUsername', 'orderNumber', 'orderDate',
   'issueCategory', 'issue', 'responseStatus', 'lastContacted',
-  'resolutionType', 'totalResolutionTime', 'notes'
+  'resolutionType', 'totalResolutionTime', 'notes', 'newUpdate'
 ];
 
 // ── Handle GET requests (read all tickets) ────────────────────────────────────
