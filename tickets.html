@@ -283,6 +283,17 @@
             </div>
           </div>
 
+          <hr class="section-divider" />
+
+          <!-- New Update flag -->
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="edit-newUpdate" />
+              <span>New Update</span>
+            </label>
+            <span class="form-hint">Highlights this ticket in the All Tickets view.</span>
+          </div>
+
         </form>
       </div>
       <div class="modal-footer">
@@ -424,8 +435,10 @@
       tbody.innerHTML = tickets.map(t => {
         const badgeClass = statusBadgeClass(t.responseStatus);
         const ageClass = agingClass(t);
+        const isNewUpdate = t.newUpdate === 'true' || t.newUpdate === true;
+        const rowClasses = [ageClass, isNewUpdate ? 'row-new-update' : ''].filter(Boolean).join(' ');
         return `
-          <tr${ageClass ? ` class="${ageClass}"` : ''}>
+          <tr${rowClasses ? ` class="${rowClasses}"` : ''}>
             <td><code style="font-size:0.82rem;">${esc(t.id)}</code></td>
             <td>${formatDate(t.dateOfTicket)}</td>
             <td>${esc(t.repName)}</td>
@@ -632,6 +645,7 @@
       setVal('edit-resolutionType', t.resolutionType || '');
       setVal('edit-totalResolutionTime', t.totalResolutionTime || '');
       setVal('edit-notes', t.notes);
+      document.getElementById('edit-newUpdate').checked = (t.newUpdate === 'true' || t.newUpdate === true);
       modalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
@@ -710,6 +724,7 @@
         resolutionType:      document.getElementById('edit-resolutionType').value,
         totalResolutionTime: document.getElementById('edit-totalResolutionTime').value.trim(),
         notes:               document.getElementById('edit-notes').value.trim(),
+        newUpdate:           document.getElementById('edit-newUpdate').checked ? 'true' : 'false',
       };
 
       const saveBtn = document.getElementById('modal-save-btn');

@@ -222,6 +222,27 @@ textarea {
   margin-top: 2px;
 }
 
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
 /* --- Buttons --- */
 .btn {
   display: inline-flex;
@@ -517,6 +538,11 @@ tbody td {
 tr.age-green td:first-child { border-left: 4px solid #22c55e; }
 tr.age-yellow td:first-child { border-left: 4px solid #f59e0b; }
 tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
+
+/* --- New Update Highlight --- */
+tr.row-new-update { background: #eff6ff; }
+tr.row-new-update:hover { background: #dbeafe; }
+tr.row-new-update td:first-child { border-left: 4px solid #3b82f6; }
 
 .aging-legend {
   align-items: center;

@@ -163,6 +163,17 @@
 
         <hr class="section-divider" />
 
+        <!-- New Update flag -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="newUpdate" name="newUpdate" />
+            <span>New Update</span>
+          </label>
+          <span class="form-hint">Check this to highlight the ticket in the All Tickets view.</span>
+        </div>
+
+        <hr class="section-divider" />
+
         <div style="display:flex; gap:12px; justify-content:flex-end;">
           <button type="button" class="btn btn-secondary" id="clear-btn">Clear Form</button>
           <button type="submit" class="btn btn-primary">
@@ -208,6 +219,7 @@
       fields.forEach(f => {
         data[f] = document.getElementById(f).value.trim();
       });
+      data.newUpdate = document.getElementById('newUpdate').checked ? 'true' : 'false';
       return data;
     }
 
