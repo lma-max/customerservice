@@ -404,7 +404,7 @@
         allTicketsCache.filter(t => t.dateOfTicket === today).length;
       document.getElementById('stat-aging').textContent =
         allTicketsCache.filter(t =>
-          !['Resolved', 'Closed'].includes(t.responseStatus) &&
+          openStatuses.includes(t.responseStatus) &&
           (ticketAgeDays(t.dateOfTicket) ?? 0) > 2
         ).length;
 
