@@ -33,6 +33,18 @@
     <!-- Flash message -->
     <div id="flash-message" class="alert" style="display:none;"></div>
 
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-open">—</div>
+        <div class="stat-label">Open Tickets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-today">—</div>
+        <div class="stat-label">Opened Today</div>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="filters-bar">
       <div class="filters-row">
@@ -378,6 +390,14 @@
 
     function renderTable() {
       const tickets = getFilteredSortedTickets();
+
+      // Stats always reflect all tickets, not just filtered view
+      const today = new Date().toISOString().slice(0, 10);
+      const openStatuses = ['Open', 'In Progress', 'Pending Customer'];
+      document.getElementById('stat-open').textContent =
+        allTicketsCache.filter(t => openStatuses.includes(t.responseStatus)).length;
+      document.getElementById('stat-today').textContent =
+        allTicketsCache.filter(t => t.dateOfTicket === today).length;
 
       if (tickets.length === 0) {
         tableWrapper.style.display = 'none';

@@ -724,6 +724,37 @@ tr.age-red td:first-child    { border-left: 4px solid #ef4444; }
 }
 
 /* --- Ticket Count --- */
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 14px 24px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .ticket-count {
   font-size: 0.85rem;
   color: var(--text-muted);
